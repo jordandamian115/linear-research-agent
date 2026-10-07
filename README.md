@@ -37,6 +37,7 @@ Refinements after the first desk, in the order they were made:
 - This pass: coherent basic academic report, basics first, points leading into points, tested on “quantum physics”.
 - This pass: longer papers for a conversational overview, and a per-agent README.
 - This pass: any ordinary topic with public records gets a paper. A physics-only sentence filter had dropped “hypertrophy in bodybuilding” after the search returned pages. If the tools return nothing, the page says so.
+- This pass: the graphic is five or six steps from that paper, each a concept and an example, in the paper’s order. It does not draw the agents or the search.
 
 ## Downloads
 
@@ -92,7 +93,7 @@ Applies those footnotes, checks spelling and a few grammar issues, and returns o
 
 ## Agent 6
 
-Draws one JPEG from the final paper: the title, two claims, and one limit. It is not a second essay, and it does not talk to the earlier agents.
+Draws one JPEG from the finished paper: five or six steps, in that paper’s order. Each step is a concept from the claims and an example already in those words. It does not draw the agents or the search, and it does not talk to the earlier agents.
 
 - Code: `agents/graphic_ag.py`
 - On the desk: a dropdown, “Agent 6 / Graphic note”, then the graphic with Download JPEG
