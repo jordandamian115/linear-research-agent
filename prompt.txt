@@ -1,0 +1,46 @@
+This new project is an agentic AI project, planned with a linear flow scheme. The order will be Agent 1 recieves the users prompt for
+writing a research paper. It will complete the process outlined in "Agent 1" located in the "Agentic AI Project" folder. This then feeds 
+into Agent 2. Who will revise the paper. After completion it will be fed to Agent 3. After Agent 3 completes it will be fed to RAG Agent.
+Afterwards it will be fed into Agent 5 which does not currently have any code. The prompt for this agent will be something along the lines of
+"You are an editor for research focused academic papers. Take the following feedback from {RAG Agent} and adjust the paper as needed.
+
+-Specifically read footnotes provided and adjust based on recommended critera. 
+-Confirm no spelling errors, and no grammatical errors.
+-Ensure flow, speech, and tone are up to par with academic scholar standards.
+-Provide one final document that will be used as the final paper.
+
+After Agent 5 is done, it will be fed into Agent 6, the final agent. This agent I would like help designing. I'm not sure how to code this one.
+This is a side project just to gain experience, I would like this one to be a graphic designer. It is intended to take the paper and put it into
+a digestable picutre format, fitted for those who are visual learners rather than reading based learners. 
+
+Maintain linear flow, Agent 1 starts and Agent 6 finishes but they do not go back to talk with the other agents. They have access to tools
+when it is needed, which I have defined out in "tools". 
+
+This is my first attempt at coding most of an AI project on my own. I would like my code to be left unchanged completely. If it needs to 
+be removed in order for the code to work, you MUST explicitley comment it out and provide **Original code commented out**. Then if you 
+decide to replace or add code to make this work you MUST explicitley add **Code added by Cursor** and then explain why the code was added, 
+why mine was insufficient, and provide feedback, was I close to what was needed?
+
+You will navigate to C:/This_PC/Desktop/Agentic_AI_Project to find all of the code. You will be using Agent 1, Agent 2, Agent 3,
+RAG Agent, Agent 5, Agent 6, and tools. You may view prompt and planned structure as well. 
+
+I have coded out tools and I believe it is ready to go. tavily requires a link and it is as follows : Read and execute a personal setup link
+Do not include that link in code that would be viewable to others. As it is my link and they could access it and charge me money based off of code usage.
+
+I would like this to be a locally hosted app, in which you can type in your query, watch each agent work, so you can see it go through each step, read each rough draft, 
+view footnotes, and then finally view and be able to download the final draft and graphic as an html and jpeg respectively. 
+
+For the RAG Agent, here are the documents to be indexed for the agent to reference.
+https://tile.loc.gov/storage-services/public/gdcmassbookdig/firstsecondinaug01linc/firstsecondinaug01linc.pdf
+https://kinginstitute.stanford.edu/i-have-dream?utm_source=chatgpt.com
+https://tile.loc.gov/storage-services/service/mss/mal/436/4361300/4361300.pdf
+https://journals.sagepub.com/doi/10.1177/2515245918754485?utm_source=chatgpt.com
+https://www.cambridge.org/core/journals/ps-political-science-and-politics/article/abs/piled-modifiers-buried-verbs-and-other-turgid-prose-in-the-american-political-science-review/A69D5F1A3CB222EFA4DCAE8993FACC72?utm_source=chatgpt.com
+https://www.tandfonline.com/doi/abs/10.1080/03075070802597101?utm_source=chatgpt.com
+https://revistas.um.es/ijes/article/view/49151?utm_source=chatgpt.com
+https://pubmed.ncbi.nlm.nih.gov/28873054/
+https://pubmed.ncbi.nlm.nih.gov/34512473/
+https://pubmed.ncbi.nlm.nih.gov/38008266/
+
+I know there is much that is needing to be added for this to work. My goal was to provide some framework and the bones of it to help 
+it work as needed. Please begin working on this.

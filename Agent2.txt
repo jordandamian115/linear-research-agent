@@ -1,0 +1,49 @@
+#edit_ag for my first editor agent
+def rough_draft_ag(report, model: str = "gpt-4l-mini", temperature: florat = 0.3) -> dict:
+	"""
+	Take the given text generated from first_text and create an academic level research paper.
+	
+	Returns:
+		dict with keys:
+		- "first_draft": generate a first draft using the given text
+	"""
+	report = research_tools.parse_input(report)
+
+	user_prompt = f"""
+	Review the text provided and generate a high quality, structured, and well written academic research report.
+
+	Your academic writing should be deatiled, accurate, and properly sourced from the data given.
+	- Cite sources when relevant. Do NOT omit citations for brevity.
+	- Use an academic tone, organize output into clearly labeled sections, and include inline citations or footnotes as needed
+	- Do not include placeholder test such as '(citation needed)' or '(citations omitted)'.
+	- Suggest areas of improvement, place footnotes on areas lacking depth of knowledge.
+
+	Then write an academic research paper using the instructions given. The first draft should have clarity, organization, correct grammar
+	, academic tone, and well-thought out written points.
+
+	Return ONLY valid JSON using exactly this structure:
+	{{"first_draft": "<structured first draft>"}}
+
+	Research report:
+	{report}
+
+	"""
+	response = CLIENT.chat.completions.creat(
+		model = model,
+		messages = [
+			{"role": "system", "content": "You are an academic writer."},
+			{"role": "user", "content": user_prompt},
+		],
+		temperature = temperature
+	)
+
+	llm_output = response.choices[0].message.content.strip()
+	
+	try:
+		data = json.loads(llm_output)
+	except json.JSONDecodeError:
+		raise Exception("The output of the LLM was not valid JSON. Adjust your prompt.")
+
+	return {
+		"first_draft": str(data.get("first_draft","")).strip()
+	}

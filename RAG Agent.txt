@@ -1,0 +1,10 @@
+#Trying to code in a RAG agent
+def rag_ag:
+	"""
+	You are an editor in charge of comparing texts to well writtne, previously defined texts.
+	Take the following academic paper provided by {revise_draft_ag} and compare it to the indexed data.
+
+	-Compare the quality between the two texts, and make clear concise footnotes on areas that need improved to match the quality of the indexed documents.
+	-Analyze tone, speech quality, thouroughness of the revise_draft_ag compared to the indexed data.
+	-Clearly state WHY the revise_draft_ag did not meet the standards of the indexed data.
+	"""

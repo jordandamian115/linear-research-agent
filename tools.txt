@@ -1,0 +1,37 @@
+# research_tools.arxiv_tool_def, research_tools.tavily_tool_def
+
+arxiv_tool_def = {
+    "type": "function",
+    "function": {
+        "name": "arxiv_search",
+        "description": "Search arXiv for academic research papers related to the user's question.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The topic or research question to search for."
+                }
+            },
+            "required": ["query"]
+        }
+    }
+}
+
+tavily_tool_def = {
+    "type": "function",
+    "function": {
+        "name": "tavily_search",
+        "description": "Search the web for reliable and relevant sources related to the user's research question.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The topic or research question to search for."
+                }
+            },
+            "required": ["query"]
+        }
+    }
+}

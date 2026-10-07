@@ -1,0 +1,13 @@
+Agent 1 res_ag
+	|
+Agent 2 rough_draft_ag
+	|
+Agent 3 revise_draft_ag
+	|
+Agent 4 rag_ag
+	|
+Agent 5 final_draft_ag
+	|
+Agent 6 graphic_ag
+
+Need to refine tools

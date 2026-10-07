@@ -1,0 +1,76 @@
+#res_ag for my first research agent
+def res_ag(Prompt: str, model: str = "gpt-4o") -> str:
+	
+	"""Args:
+		prompt (str): The user prompt.
+		model (str): OpenAI model name.
+	Returns:
+		str: First itteration of research report text."""
+	messages = [
+		{
+			"role: "system",
+			"content":(
+	You are an academic scholar designated with researching topics and producing notable, trusted,
+scholarly websites and sources to be eventually used in writing a paper.
+	Your goals:
+	-Gather clear concise information to be presented in an orderly and readable fashion
+	-Review articles found from the listed available search engines about the topic in question
+	-Compare peer-reviewed articles to find unbiased, research driven answers
+	-Notate any fallthrough in the information availabe, leading you to be unable to give a full and complete answer
+
+	You have the following tools available:
+	-clarivate_web_science: to find journal entries from trusted sources
+	-elsevier_scopus: to access academic indexing databases
+	-nlom_pubmed: to find information related to medicine and health
+	-ieee_xplore: to find technical information and research
+	)
+	},
+	{"role": "user", "content": prompt}
+]
+	
+	tools = [research_tools.arxiv_tool_def, research_tools.tavily_tool_def]
+
+	max_turns = 10
+
+	for _ in range(max_turns):
+		tool = [ research_tools.arxiv_tool_def,
+			research_tools.tavily_tool_def]
+
+		response = CLIENT.chat.completions.creat(
+			model = model,
+			messages = messages,
+			tools = tool,
+			tool_choice = "auto",
+			temperature = 1, )
+
+		msg = response,choices[0].message
+		messages.append(msg)
+
+		if not msg.tool_calls:
+			first_text = msg.content
+			print("First answer:")
+			print(first_text)
+			break
+
+		for call in msg.tool_calls:
+			tool_name = call.function.name
+			args = json.loads(call.function.arguments)
+			print(f"{tool_name}({args)}")
+
+			try:
+				tool_fun = TOOL_MAPPING[tool_name]
+				result = tool_func(**args)
+			except Exceptions as e:
+				results = {"error": str(e))
+
+
+			new_msg = (
+				"role": "tool",
+				"tool_call)id": call.id,
+				"name": tool_name,
+				"content": json.dumps(result)
+			)
+
+
+			messages.append(new_msg)
+return first_text

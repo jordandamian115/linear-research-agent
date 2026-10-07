@@ -1,0 +1,163 @@
+:root {
+  --ink: #1c1915;
+  --muted: #5e564c;
+  --red: #8c3a2f;
+  --green: #243e34;
+  --paper: #f6f1e7;
+  --card: #fffaf3;
+  --rule: #d9cbb8;
+  --warn: #f3e1d4;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, #fff 0, transparent 28rem),
+    var(--paper);
+  color: var(--ink);
+  font-family: "Liberation Sans", "Source Sans 3", "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+.mast, .layout { max-width: 1120px; margin: 0 auto; padding: 0 1.25rem; }
+
+.mast { padding-top: 2.5rem; }
+
+.eyebrow {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--red);
+  margin: 0 0 0.4rem;
+}
+
+h1 {
+  font-family: "Liberation Serif", Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  line-height: 1.05;
+  margin: 0;
+}
+
+.lede { max-width: 42rem; color: var(--muted); font-size: 1.05rem; }
+
+.mode { font-size: 0.92rem; }
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+  gap: 1.5rem;
+  padding-bottom: 4rem;
+  align-items: start;
+}
+
+aside, .panel {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  padding: 1rem 1rem 1.2rem;
+}
+
+label { display: block; font-weight: 700; margin-bottom: 0.4rem; }
+
+textarea {
+  width: 100%;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 0.75rem;
+  font: inherit;
+  color: inherit;
+  background: #fff;
+  resize: vertical;
+}
+
+textarea:focus, button:focus, a:focus { outline: 2px solid var(--red); outline-offset: 2px; }
+
+.examples { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.7rem 0; }
+
+button, .downloads a {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.55rem 0.9rem;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+button[data-example] { background: #efe4d4; color: var(--ink); }
+
+#run, .downloads a { background: var(--ink); color: #fff; }
+
+#run[disabled] { background: #8a8176; cursor: wait; }
+
+.hint { color: var(--muted); font-size: 0.9rem; min-height: 1.3rem; }
+
+.rail { list-style: none; padding: 0; margin: 1rem 0 0; }
+
+.rail li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.7rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.rail button {
+  background: transparent;
+  color: inherit;
+  border-radius: 10px;
+  text-align: left;
+  padding: 0.2rem;
+  width: 100%;
+}
+
+.mark {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  background: #efe4d4;
+  margin-top: 0.15rem;
+}
+
+.rail li.running .mark { background: var(--red); color: #fff; }
+.rail li.done .mark { background: var(--green); color: #fff; }
+.rail li.waiting { color: var(--muted); }
+.rail li strong { display: block; }
+.rail li span { color: var(--muted); font-size: 0.88rem; }
+
+.shelf { margin-top: 1rem; }
+.shelf h2, .panel h2 { font-family: "Liberation Serif", Georgia, serif; font-size: 1.3rem; margin: 0 0 0.4rem; }
+.shelf ul, .empty ol, .notes ul { padding-left: 1.1rem; }
+.shelf li { margin: 0.45rem 0; }
+.shelf a { color: var(--red); }
+.status { display: inline-block; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; margin-right: 0.3rem; }
+.status.indexed { color: var(--green); }
+.status.partial { color: #8a5a12; }
+.status.unavailable { color: var(--red); }
+
+.reader { font-family: "Liberation Serif", Georgia, serif; }
+.reader h1 { font-size: 2rem; }
+.reader h2 { font-size: 1.25rem; margin-top: 1.4rem; }
+.reader p { font-size: 1.05rem; }
+.kicker { letter-spacing: 0.08em; text-transform: uppercase; font-family: "Liberation Sans", sans-serif; font-size: 0.75rem; color: var(--red); }
+
+.error { background: var(--warn); border-color: #e2b8a4; }
+
+.notes li { margin: 0.7rem 0; }
+.notes .who { font-weight: 700; }
+
+.finish img { width: 100%; height: auto; margin-top: 1rem; border-radius: 10px; border: 1px solid var(--rule); }
+.downloads { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+main { display: grid; gap: 1rem; }
+
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+  .mast { padding-top: 1.4rem; }
+}

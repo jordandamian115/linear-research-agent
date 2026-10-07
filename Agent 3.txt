@@ -1,0 +1,57 @@
+#defining the agent for editing the rough draft
+def revise_draft_ag(report, model: str = "gpt-4o-mini", temerature: float = 0.3 -> dict:
+	"""
+	Generate a structured reflection and revised academic research report.
+	Accepts raw text OR the messages list returned by first_draft.
+
+	Returns:
+		dict with keys:
+			- "reflection": structured reflection text
+			- "reviesed_report": improved version of the input report
+	"""
+
+	report = research_tools.parse_input(report)
+
+
+	user_prompt = f"""
+	Review the following academic research report and provide a structured reflection
+	and an improved revised version of the report.
+
+	Your reflection should discuss:
+	- Strengths of the report
+	- Limitations or fallthrough
+	- Asses footnotes already discussing lack of depth of knowledge, then use tools available to increase knowledge base
+	- Suggestions for improvement
+	- Oppourtunities for further improvement or development
+
+
+	Then revise the report using your reflection. The revised report should improve
+	clarity, organization, accuracy, depth of knowledge, and academic tone while preserving
+	the important information form the original report.
+
+	Return ONLY valid JSON using exactly this structure:
+	({"reflection": "<structured reflection text>", "revised_report": "<improved version of the report>"})
+
+	Research report:
+	{report}
+	"""
+	response = CLIENT.chat.completions.creat(
+		model = model,
+		messages = [
+			{"role": "system", "content": "You are an academic reviewer and editor."},
+			{"role": "user", "content": user_prompt},
+		],
+		temperature = temperature
+	)
+
+	llm_output = response.choices[0].message.content.strip()
+	
+	try:
+		data = json.loads(llm_output)
+	except json.JSONDecodeError:
+		raise Exception("The output of the LLM was not valid JSON. Adjust your prompt.")
+
+	return {
+		"reflection": str(data.get("reflection","")).strip(),
+		"revised_report": str(data.get("revised_report","")).strip()
+	}
