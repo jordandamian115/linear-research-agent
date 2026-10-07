@@ -39,6 +39,18 @@ def res_ag(prompt: str, model: str = "gpt-4o") -> str:
         arxiv = research_tools.arxiv_search(prompt)
         print("tavily_search")
         web = research_tools.tavily_search(prompt)
+        # The first 400 characters of the brief are mostly the arXiv note.
+        # Print the Tavily status and titles on their own so a keyless
+        # failure is not mistaken for an empty success.
+        print(
+            f"tavily_search status={web.get('status')} "
+            f"key_present={'yes' if web.get('key_present') else 'no'} "
+            f"pages={len(web.get('results') or [])} mode={web.get('mode')}"
+        )
+        for item in web.get("results") or []:
+            print(f"tavily: {item.get('title')} {item.get('url')}")
+        if web.get("note"):
+            print(f"tavily note: {web.get('note')}")
         first_text = research_brief(prompt, arxiv, web)
         print("First answer:")
         print(first_text[:400])

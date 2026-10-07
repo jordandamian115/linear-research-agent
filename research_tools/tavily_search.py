@@ -6,6 +6,10 @@
 # this calls the search API with that key. Otherwise it sends a keyless
 # request. If that also fails, it returns an empty local fallback and says
 # so. It does not invent pages.
+# The keyless call was already reaching the API. The payload did not keep
+# the HTTP status, and a hit with a title but no snippet could disappear
+# before Agent 1. A failed keyless response now keeps that status instead
+# of looking like a quiet empty success.
 
 import json
 import os
@@ -19,6 +23,7 @@ def tavily_search(query: str, max_results: int = 5) -> dict:
         return _fallback(phrase, "Empty query.")
 
     key = os.environ.get("TAVILY_API_KEY", "").strip()
+    key_present = bool(key)
     body = json.dumps(
         {
             "query": phrase,
@@ -44,6 +49,7 @@ def tavily_search(query: str, max_results: int = 5) -> dict:
     )
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
+            status = getattr(response, "status", None)
             payload = json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         detail = ""
@@ -51,9 +57,19 @@ def tavily_search(query: str, max_results: int = 5) -> dict:
             detail = exc.read().decode("utf-8", errors="replace")[:180]
         except Exception:
             detail = ""
-        return _fallback(phrase, f"Web search returned HTTP {exc.code}. {detail}".strip())
+        return _fallback(
+            phrase,
+            f"Tavily returned HTTP {exc.code}. {detail}".strip(),
+            key_present=key_present,
+            status=exc.code,
+        )
     except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
-        return _fallback(phrase, f"Web search could not be reached ({exc.__class__.__name__}).")
+        return _fallback(
+            phrase,
+            f"Tavily could not be reached ({exc.__class__.__name__}). No HTTP status came back.",
+            key_present=key_present,
+            status=None,
+        )
 
     results = []
     for item in payload.get("results") or []:
@@ -71,27 +87,38 @@ def tavily_search(query: str, max_results: int = 5) -> dict:
                 "published": "",
                 "url": url,
                 "summary": content,
-                "venue": "web",
+                "venue": "Tavily",
             }
         )
-    note = None if results else "Web search returned no pages."
+    note = None
+    if not results:
+        note = (
+            f"Tavily answered HTTP {status} and returned no pages. "
+            "No substitute pages were added."
+        )
     return {
         "source": "tavily",
         "mode": mode,
         "query": phrase,
         "results": results,
         "note": note,
+        "status": status,
+        "key_present": key_present,
     }
 
 
-def _fallback(query: str, reason: str) -> dict:
+def _fallback(query: str, reason: str, key_present: bool = False, status: int | None = None) -> dict:
+    status_line = f"HTTP {status}." if status is not None else "No HTTP status."
     return {
         "source": "tavily",
         "mode": "local-fallback",
         "query": query,
         "results": [],
         "note": (
-            "Live web search did not run, so no substitute pages were added. "
+            f"Tavily did not return pages. {status_line} "
+            "No substitute pages were added. "
             + " ".join(reason.split())
         ),
+        "status": status,
+        "key_present": key_present,
     }

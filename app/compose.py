@@ -23,6 +23,10 @@ from __future__ import annotations
 # not enough: a heart abstract shared "tissue" and "reported" with a shop
 # page and was taught as the subject. Page chrome (titles, menus, "click
 # here") is not a teaching sentence.
+# The research brief listed a web count and then the arXiv records. Tavily
+# titles sat later, labeled only as "web", and a title with an empty
+# snippet was dropped. The log now names Tavily, the HTTP status, and each
+# returned URL before the excerpts.
 
 TEACHING_STANDARD = """
 Write a basic academic paper someone could hand to another person or turn in for a class.
@@ -42,6 +46,18 @@ from datetime import date
 from rag.index import sentences
 
 
+def _tavily_log(web: dict) -> str:
+    status = web.get("status")
+    status_text = str(status) if status is not None else "none"
+    key_text = "yes" if web.get("key_present") else "no"
+    count = len(web.get("results") or [])
+    return (
+        f"tavily_search was called. Key present: {key_text}. "
+        f"HTTP status: {status_text}. Mode: {web.get('mode') or web.get('source')}. "
+        f"Tavily returned {count} page(s), separate from arXiv."
+    )
+
+
 def research_brief(query: str, arxiv: dict, web: dict) -> str:
     sources = _collect(arxiv, web)
     lines = [
@@ -51,14 +67,23 @@ def research_brief(query: str, arxiv: dict, web: dict) -> str:
         query.strip(),
         "",
         "## Search log",
+        "",
         f"arXiv returned {len(arxiv.get('results') or [])} record(s) for this question.",
-        f"Web search mode: {web.get('mode') or web.get('source')}.",
-        f"Web search returned {len(web.get('results') or [])} page(s) for this question.",
+        "",
+        _tavily_log(web),
+        "",
         "These searches are not limited to the reference shelf. The shelf is used later, only to compare prose.",
+        "",
     ]
+    for item in web.get("results") or []:
+        title = " ".join(str(item.get("title") or "Untitled").split())
+        url = str(item.get("url") or "").strip()
+        lines.extend(["", f"Tavily page: {title} — {url}"])
+    if not (web.get("results") or []):
+        lines.extend(["", "Tavily returned no pages. No web titles were added."])
     for label, payload in (("arXiv", arxiv), ("Web", web)):
         if payload.get("note"):
-            lines.append(f"{label} note: {payload['note']}")
+            lines.extend(["", f"{label} note: {payload['note']}"])
     if not sources:
         lines.extend(
             [
@@ -1287,8 +1312,12 @@ def _collect(arxiv: dict, web: dict) -> list[dict]:
             url = (item.get("url") or "").strip()
             title = " ".join(str(item.get("title") or "").split())
             summary = " ".join(str(item.get("summary") or "").split())
-            if not url or not summary or url in seen:
+            if not url or url in seen:
                 continue
+            if not summary and not title:
+                continue
+            if not summary:
+                summary = title
             seen.add(url)
             sources.append(
                 {
