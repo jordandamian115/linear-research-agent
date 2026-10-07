@@ -1,7 +1,10 @@
 # **Code added by Cursor**
 # The arXiv schema in tools.txt names arxiv_search and a query string.
 # That is the right shape. There was no function behind the schema, so a
-# tool call could not return papers. This calls the public arXiv API only.
+# tool call could not return papers. This searches the public arXiv API for
+# whatever question was typed. It does not consult the RAG shelf. An exact
+# phrase often misses, so a keyword search for that same topic is the
+# fallback. They were close: the schema already takes any query string.
 
 import re
 import urllib.error
@@ -16,6 +19,7 @@ _STOP = {
     "their", "them", "then", "there", "these", "they", "this", "what",
     "when", "where", "which", "while", "with", "would", "your", "does",
     "have", "been", "were", "will", "shall", "should", "make", "makes",
+    "using", "used", "into", "under", "through", "during", "while",
 }
 
 _ATOM = {"a": "http://www.w3.org/2005/Atom"}
@@ -30,16 +34,20 @@ def arxiv_search(query: str, max_results: int = 5) -> dict:
     try:
         results = _entries(_fetch(f'all:"{quoted}"', max_results))
         note = None
-        if not results:
-            words = [
-                word
-                for word in re.findall(r"[A-Za-z0-9]+", quoted)
-                if len(word) > 3 and word.lower() not in _STOP
-            ]
-            if words:
-                loose = " AND ".join(f"all:{word}" for word in words[:3])
-                results = _entries(_fetch(loose, max_results))
-                note = "The exact question matched nothing on arXiv. A shorter keyword search was used."
+        words = [
+            word
+            for word in re.findall(r"[A-Za-z0-9]+", quoted)
+            if len(word) > 3 and word.lower() not in _STOP
+        ]
+        # Drop one keyword at a time. A wide OR pulls papers about a single
+        # common word and misses the question.
+        for size in range(min(3, len(words)), 0, -1):
+            if results:
+                break
+            focused = " AND ".join(f"all:{word}" for word in words[:size])
+            results = _entries(_fetch(focused, max_results))
+            if results:
+                note = "The exact question matched nothing on arXiv. A keyword search for this topic was used."
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
         return {
             "source": "arxiv",

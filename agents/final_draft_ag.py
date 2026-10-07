@@ -9,11 +9,9 @@
 # the model writes that document and the same checker still runs, because a
 # completion does not by itself prove the spelling.
 
-import os
-
 import research_tools
 from app.compose import apply_editorial
-from app.llm import complete, model_available
+from app.llm import active_model, complete, model_available
 
 
 def final_draft_ag(report, model: str = "gpt-4o-mini") -> dict:
@@ -59,6 +57,6 @@ Paper:
         paper = (response.choices[0].message.content or "").strip()
 
     edited = apply_editorial(paper, footnotes)
-    edited["model"] = model if model_available() else "local"
-    edited["key_configured"] = bool(os.environ.get("OPENAI_API_KEY"))
+    edited["model"] = active_model()
+    edited["key_configured"] = model_available()
     return edited

@@ -47,12 +47,13 @@ async function loadHealth() {
   try {
     const response = await fetch("/api/health");
     const data = await response.json();
-    const writing = data.composition === "model"
-      ? "A model key is set, so Agents 1, 2, 3, and 5 call it."
-      : "No model key is set, so the drafts are composed locally from the records the tools return.";
+    const model = data.model || "local";
+    const writing = model === "local"
+      ? "Model in use: local composition. Set XAI_API_KEY to turn on Grok, or OPENAI_API_KEY to turn on the OpenAI models named in the notes."
+      : `Model in use: ${model}.`;
     const search = data.tavily === "api-key"
-      ? "Web search uses a configured key."
-      : "Web search tries a keyless request, then an empty local fallback if that fails. It does not invent pages.";
+      ? "arXiv and web search run on the question you type."
+      : "arXiv and web search run on the question you type. Web search uses a keyless request, then an empty fallback if that fails.";
     mode.textContent = `${writing} ${search}`;
     buildRail(data.stages || []);
   } catch (err) {

@@ -23,9 +23,10 @@ def research_brief(query: str, arxiv: dict, web: dict) -> str:
         query.strip(),
         "",
         "## Search log",
-        f"arXiv returned {len(arxiv.get('results') or [])} record(s).",
+        f"arXiv returned {len(arxiv.get('results') or [])} record(s) for this question.",
         f"Web search mode: {web.get('mode') or web.get('source')}.",
-        f"Web search returned {len(web.get('results') or [])} page(s).",
+        f"Web search returned {len(web.get('results') or [])} page(s) for this question.",
+        "These searches are not limited to the reference shelf. The shelf is used later, only to compare prose.",
     ]
     for label, payload in (("arXiv", arxiv), ("Web", web)):
         if payload.get("note"):

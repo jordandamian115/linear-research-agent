@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from app.llm import model_available
+from app.llm import active_model, model_available, provider
 from app.pipeline import STAGES, run_pipeline
 from rag.index import public_status
 import research_tools
@@ -46,6 +46,8 @@ def health():
     return {
         "ok": True,
         "composition": "model" if model_available() else "local",
+        "provider": provider(),
+        "model": active_model(),
         "tavily": "api-key" if os.environ.get("TAVILY_API_KEY", "").strip() else "keyless-with-local-fallback",
         "stages": [{"id": sid, "label": label, "action": action} for sid, label, action in STAGES],
     }

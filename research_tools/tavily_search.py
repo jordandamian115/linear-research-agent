@@ -1,8 +1,9 @@
 # **Code added by Cursor**
 # tools.txt defines tavily_search as a web search for the research question.
 # The schema was close and is loaded unchanged from that file. No function
-# was written, and no key is stored in the project. When TAVILY_API_KEY is
-# set, this calls the search API with that key. Otherwise it sends a keyless
+# was written, and no key is stored in the project. The query sent is the
+# question the user typed, not the RAG shelf. When TAVILY_API_KEY is set,
+# this calls the search API with that key. Otherwise it sends a keyless
 # request. If that also fails, it returns an empty local fallback and says
 # so. It does not invent pages.
 
@@ -23,6 +24,7 @@ def tavily_search(query: str, max_results: int = 5) -> dict:
             "query": phrase,
             "max_results": max_results,
             "search_depth": "basic",
+            "topic": "general",
             "include_answer": False,
         }
     ).encode("utf-8")

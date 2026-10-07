@@ -28,7 +28,11 @@ The first launch builds a local index of the public documents. That can take a m
 
 Copy `.env.example` to `.env` if you have keys. `.env` is not committed.
 
-- `OPENAI_API_KEY` — Agents 1, 2, 3, and 5 call a model. Without it, those steps are composed locally from the text the tools return. They do not invent citations.
+Agent 1 searches arXiv and the web for the question you type. The reference shelf is only for the later prose comparison.
+
+- `XAI_API_KEY` — turns on Grok for Agents 1, 2, 3, and 5. The default model id is `grok-3-mini` (override with `XAI_MODEL`).
+- `OPENAI_API_KEY` — turns on the OpenAI models named in the notes (`gpt-4o`, `gpt-4o-mini`).
+- With neither key, those steps are composed locally from the records the searches return. They do not invent citations.
 - `TAVILY_API_KEY` — web search uses the key. Without it, search sends a keyless request. If that fails, the tool returns an empty local fallback and says so. It does not invent pages.
 
 ## Downloads
