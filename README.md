@@ -36,6 +36,7 @@ Refinements after the first desk, in the order they were made:
 - UI: their agent intro, placeholder “enter your inquiry here”, one “Gather information” button, collapsed left menu of indexed sources, “Results”, a dropdown per finished agent, then the full paper with Download HTML, then the graphic with Download JPEG.
 - This pass: coherent basic academic report, basics first, points leading into points, tested on “quantum physics”.
 - This pass: longer papers for a conversational overview, and a per-agent README.
+- This pass: any ordinary topic with public records gets a paper. A physics-only sentence filter had dropped “hypertrophy in bodybuilding” after the search returned pages. If the tools return nothing, the page says so.
 
 ## Downloads
 

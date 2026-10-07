@@ -13,6 +13,16 @@ from __future__ import annotations
 # talk from. A reader got the order and could not say how one idea led to
 # the next. This version keeps that order and develops each step with the
 # next explanatory sentences from the same records.
+# A later pass only kept sentences that matched physics cues (classical,
+# quanta, waves, probability) or "is the study." "Hypertrophy in
+# bodybuilding" returned real pages, then the writer set every one aside
+# and the paper had no claims. Roles now cover a plain definition and how
+# the subject works, for any topic. A source that misses part of a
+# multi-word question stays only when it shares distinctive words with
+# records that match the whole question. Matching any two long words was
+# not enough: a heart abstract shared "tissue" and "reported" with a shop
+# page and was taught as the subject. Page chrome (titles, menus, "click
+# here") is not a teaching sentence.
 
 TEACHING_STANDARD = """
 Write a basic academic paper someone could hand to another person or turn in for a class.
@@ -146,20 +156,22 @@ _ROLE_PLAN = (
     ("knowledge", 2),
     ("uncertainty", 1),
     ("further", 1),
+    ("works", 4),
     ("path", 2),
 )
 
 _ROLE_JOB = {
     "definition": "what the subject is",
     "scope": "where that behavior shows up",
-    "contrast": "the contrast with classical physics",
+    "contrast": "the contrast the records draw",
+    "works": "how it works",
     "discrete": "how matter and energy are divided",
     "example": "the example already in that record",
     "duality": "wave and particle behavior",
     "knowledge": "probability in place of a single certain path",
     "uncertainty": "what cannot be known exactly at the same time",
     "further": "a further idea the earlier sentences do not state",
-    "path": "how a class can state the account before the full mathematics",
+    "path": "how to put the account into practice",
 }
 
 
@@ -168,27 +180,75 @@ def _outline(query: str, sources: list[dict]) -> dict:
     terms = _query_terms(query)
     aside = []
     prepared = []
+    held = []
     for source in sources:
-        if _sidebar(source):
+        if _sidebar(source, terms):
             aside.append(source)
             continue
         text = _prepare(source.get("excerpt") or source.get("summary") or "")
+        overlap = _query_overlap(f"{source.get('title', '')} {text}", terms)
+        held.append((overlap, source, text))
+    # When one record matches every word of the question, a record that
+    # matches only a fragment (heart "hypertrophy" with no bodybuilding,
+    # for example) does not explain the question.
+    best = max((overlap for overlap, _source, _text in held), default=0)
+    full_blobs: list[str] = []
+    if len(terms) >= 2 and best >= len(terms):
+        for overlap, source, text in held:
+            if overlap >= len(terms):
+                full_blobs.append(f"{source.get('title', '')} {text}")
+    signature = _signature(full_blobs, terms)
+    for overlap, source, text in held:
+        if terms and overlap < 1:
+            aside.append(source)
+            continue
+        if full_blobs and overlap < len(terms) and not _same_sense(f"{source.get('title', '')} {text}", signature, terms):
+            aside.append(source)
+            continue
         found = []
         seen = set()
         for sentence in sentences(text):
             sentence = _polish_excerpt(sentence)
             if sentence.lower() in seen or not _usable(sentence):
                 continue
-            role = _role(sentence)
+            role = _role(sentence, terms)
+            # A record that already matches the question can explain the next
+            # step without repeating every word of the question.
+            if not role and len(terms) >= 1 and overlap >= max(len(terms), 1) and _explanatory(sentence):
+                role = "works"
             if not role:
                 continue
             seen.add(sentence.lower())
             found.append((role, sentence, _quality(sentence, terms, role)))
+        found = _leave_room_for_follows(found, text)
         if not found:
             aside.append(source)
             continue
-        prepared.append({**source, "candidates": found, "sequence": _sequence(text)})
+        prepared.append({**source, "candidates": found, "sequence": _sequence(text), "terms": terms})
     return {"steps": _pick_steps(prepared), "aside": aside}
+
+
+def _leave_room_for_follows(found: list[tuple], text: str) -> list[tuple]:
+    """Keep the sentences right after a definition for that definition's development.
+
+    Promoting them to their own later step made the opening skip the mechanism
+    and repeat it at the end.
+    """
+    sequence = _sequence(text)
+    found_sentences = {sentence for _role_name, sentence, _quality in found}
+    protected = set()
+    for role, sentence, _quality in found:
+        if role != "definition" or sentence not in sequence:
+            continue
+        taken = 0
+        for nxt in sequence[sequence.index(sentence) + 1:]:
+            if nxt in found_sentences:
+                protected.add(nxt)
+            if _usable(nxt) or _continuation(nxt):
+                taken += 1
+            if taken >= 2:
+                break
+    return [item for item in found if not (item[0] == "works" and item[1] in protected)]
 
 
 def _pick_steps(prepared: list[dict]) -> list[dict]:
@@ -292,7 +352,7 @@ def _follows(step: dict, used: set[str], limit: int = 2) -> list[str]:
     for sentence in sequence[index + 1:]:
         if sentence in used:
             continue
-        role = _role(sentence) if _usable(sentence) else None
+        role = _role(sentence, step["source"].get("terms") or []) if _usable(sentence) else None
         if role and role != step["role"] and role in later_roles:
             break
         if not _usable(sentence) and not _continuation(sentence):
@@ -302,7 +362,7 @@ def _follows(step: dict, used: set[str], limit: int = 2) -> list[str]:
         words = set(_content_words(sentence))
         if not words:
             continue
-        shared = anchor_words & words
+        shared = _shared_words(anchor_words, words)
         # A near-copy of the sentence just used does not teach the next step.
         if anchor_words and len(shared) / len(anchor_words) > 0.55:
             continue
@@ -312,6 +372,92 @@ def _follows(step: dict, used: set[str], limit: int = 2) -> list[str]:
         if len(found) == limit:
             break
     return found
+
+
+def _signature(blobs: list[str], terms: list[str]) -> set[str]:
+    """Words that show up in more than one record that matches the whole question.
+
+    One shop page and one abstract can share ordinary words. A word has to
+    recur across those full matches before it can vouch for a partial record.
+    """
+    if not blobs:
+        return set()
+    counts: dict[str, int] = {}
+    for blob in blobs:
+        for word in _distinctive(blob, terms):
+            counts[word] = counts.get(word, 0) + 1
+    if len(blobs) >= 2:
+        return {word for word, count in counts.items() if count >= 2}
+    return set(counts)
+
+
+def _distinctive(text: str, terms: list[str]) -> set[str]:
+    generic = {
+        "result", "results", "effect", "effects", "approach", "including", "support",
+        "compare", "compared", "often", "using", "based", "study", "studies", "model",
+        "between", "during", "after", "before", "would", "could", "should", "within",
+        "without", "there", "these", "those", "about", "which", "while", "where",
+        "other", "their", "through", "because", "system", "systems", "large", "small",
+        "tissue", "information", "consistent", "improve", "improved", "develop",
+        "developed", "development", "trained", "diameter", "reported", "relation",
+        "experts", "expert", "generating", "generated", "analysis", "method",
+        "methods", "patient", "patients", "clinical", "change", "changes",
+        "different", "traditional", "commonly", "focused", "simply", "actually",
+        "really", "following", "article", "benefits", "possible", "several",
+        "however", "therefore", "another", "further", "whether", "already",
+        "across", "toward", "towards", "people", "person", "something", "anything",
+        "everything", "important", "significant", "available", "according",
+        "related", "research", "paper", "papers", "abstract", "section", "figure",
+        "table", "dataset", "provide", "provides", "provided", "include",
+        "includes", "current", "previous", "recent", "general", "specific",
+        "various", "multiple", "single", "number", "numbers", "value", "values",
+        "level", "levels", "group", "groups", "example", "examples", "process",
+        "background", "conclusion", "present", "presented", "human", "publicly",
+        "resource", "promote", "innovation", "limited", "challenge", "early",
+        "detection", "found", "shown", "using", "based", "range", "chronic",
+        "disease", "measurement", "measurements", "automatically", "accurately",
+    }
+    return {
+        word for word in _content_words(text)
+        if word not in terms and word not in generic and len(word) > 5
+    }
+
+
+def _same_sense(text: str, vocab: set[str], terms: list[str]) -> bool:
+    """A partial match belongs when it shares the full matches' recurring words.
+
+    Sharing any two long words let a ventricular-hypertrophy abstract pass,
+    because a shop page also said "tissue" and "reported." Those words are
+    not the subject. The check uses only words that recur in records that
+    already match the whole question.
+    """
+    if not vocab:
+        return False
+    return len(_distinctive(text, terms) & vocab) >= 2
+
+
+def _shared_words(left: set[str], right: set[str]) -> set[str]:
+    """Shared wording, including a plural or a longer form of the same word."""
+    found = set()
+    for word in left:
+        if word in right:
+            found.add(word)
+            continue
+        if len(word) < 5:
+            continue
+        for other in right:
+            if len(other) >= 5 and (word.startswith(other) or other.startswith(word)):
+                found.add(word)
+                break
+    return found
+
+
+def _explanatory(sentence: str) -> bool:
+    return bool(re.search(
+        r"\b(cause|causes|caused|increase|increases|increased|lead|leads|result|results|occur|occurs|happen|happens|work|works|grow|grows|growth|process|produce|produces|require|requires|use|uses|used|make|makes|change|changes|allow|allows|help|helps|achieve|achieved|train|training|build|builds|building|plays)\b",
+        sentence,
+        re.I,
+    ))
 
 
 def _content_words(sentence: str) -> list[str]:
@@ -404,7 +550,7 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
         bits.append(_handoff("contrast", next_role("contrast")))
         support.append(" ".join(bits))
     previous = "contrast" if contrasts else "definition"
-    for role in ("discrete", "example", "duality", "knowledge", "uncertainty", "further", "path"):
+    for role in ("discrete", "example", "duality", "knowledge", "uncertainty", "further", "works", "path"):
         chosen = group(role)
         if not chosen:
             continue
@@ -420,8 +566,8 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
         support.append(" ".join(bits))
     if not support:
         support.append(
-            "The search returned records, but none of them stated the subject in language a paper can teach. "
-            "This draft does not invent that statement."
+            "The search returned records, but none of them stated the subject in a sentence this paper can teach. "
+            "The titles are named under Limits. Nothing was invented to fill the gap."
         )
 
     walk = _reading_path(steps, cite)
@@ -548,7 +694,7 @@ def _limits(aside: list[dict], today: str) -> str:
     if titles:
         listed = ", ".join(f"“{title}”" for title in titles[:6])
         return (
-            f"Other retrieved records were set aside because they do not explain the subject in beginner’s language: {listed}. "
+            f"Other retrieved records were set aside because they do not explain this question: {listed}. "
             "They stay out of the argument so a technical aside, a program, or a pile of fragments is not mistaken for a definition. "
             f"Where a record supplied only a snippet, this paper does not reconstruct the page behind it. Retrieved on {today}."
         )
@@ -575,7 +721,7 @@ def _closer(steps: list[dict], cite) -> str:
         else:
             bits.append(f"It is set beside the ordinary case named next to that opening {marks}.")
     spoken = []
-    for role in ("scope", "discrete", "example", "duality", "knowledge", "uncertainty", "further", "path"):
+    for role in ("scope", "discrete", "example", "duality", "knowledge", "uncertainty", "further", "works", "path"):
         chosen = [step for step in steps if step["role"] == role]
         if not chosen:
             continue
@@ -587,7 +733,7 @@ def _closer(steps: list[dict], cite) -> str:
         bits.extend(spoken)
         bits.append("Each of those lines is the next retrieved sentence. The handoff is the order itself.")
     bits.append(
-        "Stop there. These records do not derive the mathematics, and they do not replace a course. "
+        "Stop there. These records do not establish more than the sentences above, and they do not replace a fuller treatment. "
         "They are enough to hand to another person as a first account, and they mark where that account stops."
     )
     return " ".join(bits)
@@ -615,8 +761,14 @@ def _idea_lead(role: str, sentence: str, previous: str) -> str:
         if "entangl" in lowered:
             return "The next record adds a relation between two or more objects."
         return "The next record adds one further idea that is already in the retrieved text."
+    if role == "works":
+        if previous in {"definition", "scope", "contrast", "definition"}:
+            return "With the subject named, the records say how it works."
+        return "The next record adds another step in how it works."
     if role == "path":
-        return "A reader can stop at the ideas above. The last record says how a class can ask a beginner to hold them."
+        if "formula" in lowered or "math" in lowered:
+            return "A reader can stop at the ideas above. The last record says how a class can ask a beginner to hold them."
+        return "The last record says how a person can put this account into practice."
     return "The next record continues the account."
 
 
@@ -660,17 +812,20 @@ def _label_from_sentence(role: str, sentence: str) -> str:
     return _ROLE_JOB.get(role, "the next point")
 
 
-def _sidebar(source: dict) -> bool:
+def _sidebar(source: dict, terms: list[str] | None = None) -> bool:
     title = (source.get("title") or "").lower()
     url = (source.get("url") or "").lower()
     text = (source.get("excerpt") or source.get("summary") or "").lower()
+    terms = terms or []
     if "youtube.com" in url or "youtu.be" in url:
         return True
     if title.startswith("proceedings") or "proceedings of" in title:
         return True
     if "conference" in title and "proceedings" in text:
         return True
-    if "programming" in title:
+    # A programming paper was noise on a physics question. It is the subject
+    # when the inquiry itself is about programming.
+    if "programming" in title and not any(term.startswith("program") for term in terms):
         return True
     if "collection of statements" in text and len(text.split()) < 80:
         return True
@@ -679,6 +834,7 @@ def _sidebar(source: dict) -> bool:
 
 def _prepare(text: str) -> str:
     text = text.replace("**", "").replace("__", "")
+    text = re.sub(r"\s#+\s*", ". ", text)
     text = re.sub(r"^#+\s*", "", text, flags=re.M)
     text = re.sub(r"skip to main content", " ", text, flags=re.I)
     text = re.split(r"German abstract:", text, maxsplit=1, flags=re.I)[0]
@@ -688,7 +844,7 @@ def _prepare(text: str) -> str:
     # Snippet cuts ("[...]") are not sentence ends. Keep only the clauses that
     # were already finished, so a cut word is not taught as a definition.
     kept = []
-    for part in re.split(r"\[\.\.\.\]|…", text):
+    for part in re.split(r"\[\.\.\.\]|…|\.{3,}", text):
         part = part.strip()
         if not part:
             continue
@@ -731,13 +887,39 @@ def _usable(sentence: str) -> bool:
     )):
         return False
     if re.match(
-        r"(This|It|They|These|We|Our|Currently|In order|In fact|Data show|Lecture|Sign up|Spend)\b",
+        r"(This|It|They|These|We|Our|I|Currently|In order|In fact|Data show|Lecture|Sign up|Spend)\b",
         sentence,
     ):
         return False
     if lowered.startswith("in physics, this means"):
         return False
     if re.search(r"\bpart in \d{3,}\b", lowered):
+        return False
+    if re.search(r"\(\d+(?:st|nd|rd|th) ed\.\)", sentence):
+        return False
+    if re.search(r"\b(F1|AUROC|inference rate)\b", sentence):
+        return False
+    if "read on to" in lowered or lowered.rstrip(".!?").endswith("but how"):
+        return False
+    if re.search(r"(?:[A-Z]{2,}\s+){3,}", sentence):
+        return False
+    # A menu, a title line, or a clipped heading is not an explanation.
+    if re.search(
+        r"(click this link|for more info|you will find|subreddit|read more|cookie policy|add to cart|shop by)",
+        lowered,
+    ):
+        return False
+    if lowered.startswith("title:") or "said above" in lowered:
+        return False
+    if re.sub(r"[\"”']+$", "", sentence.rstrip()).rstrip(".!?").endswith(":"):
+        return False
+    alpha = re.findall(r"[A-Za-z][A-Za-z']*", sentence)
+    caps = [word for word in alpha if word[:1].isupper()]
+    lowers = [word for word in alpha if word.islower()]
+    if len([word for word in lowers if len(word) > 3]) < 4:
+        return False
+    # A run of title-case names is a menu or a heading, not an explanation.
+    if len(caps) >= 4 and len(caps) > len(lowers):
         return False
     if sentence.count("(") != sentence.count(")"):
         return False
@@ -748,19 +930,23 @@ def _usable(sentence: str) -> bool:
     return True
 
 
-def _role(sentence: str) -> str | None:
+def _role(sentence: str, terms: list[str] | None = None) -> str | None:
+    """Physics cues stay first so that subject still builds in its own order.
+
+    Anything else with the question's words can still be a definition, a
+    contrast, or a step in how the subject works. The previous version
+    returned None for those sentences, and the paper then had no claims.
+    """
     text = sentence.lower()
+    terms = terms or []
+    overlap = _query_overlap(sentence, terms) if terms else 0
     if (
-        any(cue in text for cue in ("school", "student", "teach", "course", "tutorial", "formula"))
-        and "programming" not in text
-        and not re.search(r"\bis the (study|science|field|fundamental)\b", text)
-    ):
+        re.search(r"\b(schools?|students?|teach|tutorial|formulas?)\b", text) or re.search(r"\b(a|the|this) course\b", text)
+    ) and "programming" not in text and not re.search(r"\bis the (study|science|field|fundamental)\b", text):
         return "path"
     if "entangl" in text and any(cue in text for cue in ("two or more", "far apart", "connected", "single system")):
         return "further"
     if any(cue in text for cue in ("superposition", "multiple possible states", "until they are measured")):
-        # A sentence that only names the word, or says the equations can calculate it,
-        # does not teach the idea. Keep the sentence only when it says what the state is.
         if any(cue in text for cue in ("multiple places", "multiple possible", "more than one", "until they are measured", "not confined")):
             return "further"
         return None
@@ -779,16 +965,36 @@ def _role(sentence: str) -> str | None:
         return "contrast"
     if any(cue in text for cue in ("every scale", "all around us", "everyday lives")):
         return "scope"
-    if re.search(r"\b(is|are) (the |a |an )?(fascinating )?(study|science|field|branch|theory|fundamental)\b", text):
+    if re.search(r"\b(is|are) (the |a |an )?(fascinating )?(study|science|field|branch|theory|fundamental|process)\b", text):
         return "definition"
     if any(cue in text for cue in ("is the fundamental", "explores the behavior", "describes the behavior", "studies how", "describes nature")):
         return "definition"
+    if any(cue in text for cue in ("unlike ", "whereas", "rather than", "compared with", "in contrast", "difference between")):
+        return "contrast"
+    if overlap >= 1 and "however," in text:
+        return "contrast"
+    if overlap >= 1 and re.search(r"\b(is|are) (a |an )?(different|distinct)\b", text):
+        return "contrast"
+    if overlap >= 1 and not re.match(r"there (is|are)\b", text) and re.search(
+        r"\b(means|refers to|defined as)\b|\b(is|are) (the |a |an )?(process|study|science|field|branch|theory|growth|enlargement)\b",
+        text,
+    ):
+        return "definition"
+    if overlap >= 1 and re.search(r"\b(goal|goals|purpose|aim|aims)\b", text) and re.search(r"\b(is|are)\b", text):
+        return "definition"
+    if overlap >= 1 and re.search(
+        r"\b(cause|causes|caused|increase|increases|increased|lead|leads|result|results|occur|occurs|happen|happens|work|works|grow|grows|growth|process|produce|produces|require|requires|use|uses|used|make|makes|change|changes|allow|allows|help|helps|achieve|achieved|train|training|build|builds|building|plays)\b",
+        text,
+    ):
+        return "works"
     return None
 
 
 def _quality(sentence: str, terms: list[str], role: str) -> int:
     lowered = sentence.lower()
     score = _query_overlap(sentence, terms) * 2
+    if any(cue in lowered for cue in ("equipment", "engineered to", "shop ", "gear", "add to cart", "plates")):
+        score -= 6
     if role == "definition":
         if "is the study of" in lowered:
             score += 8
@@ -796,8 +1002,8 @@ def _quality(sentence: str, terms: list[str], role: str) -> int:
             score += 6
         elif "studies how" in lowered or "explores the behavior" in lowered or "smallest scales of our universe" in lowered:
             score += 5
-        elif "is the science" in lowered:
-            score += 3
+        elif "is the science" in lowered or "refers to" in lowered or "is the process" in lowered or "defined as" in lowered:
+            score += 5
         if any(cue in lowered for cue in ("absolute zero", "coldest", "nothing colder")):
             score -= 5
     if role == "contrast" and any(cue in lowered for cue in ("planets", "baseball", "cars", "balls", "world we see", "we can see")):
@@ -934,7 +1140,16 @@ def _bucket(sentence: str) -> str:
 
 def _query_overlap(text: str, terms: list[str]) -> int:
     lowered = text.lower()
-    return sum(1 for term in terms if re.search(rf"\b{re.escape(term)}\b", lowered))
+    return sum(1 for term in terms if _term_in(lowered, term))
+
+
+def _term_in(text: str, term: str) -> bool:
+    if re.search(rf"\b{re.escape(term)}\b", text):
+        return True
+    # "bodybuilding" should meet "bodybuilders" without listing each topic's endings.
+    if len(term) >= 8 and re.search(rf"\b{re.escape(term[:8])}", text):
+        return True
+    return False
 
 
 def _noisy(text: str) -> bool:
@@ -945,6 +1160,8 @@ def _noisy(text: str) -> bool:
         "views posted",
         "click here",
         "subscribe",
+        "share on pinterest",
+        "pinterest",
         "[1",
         "http://",
         "https://",
@@ -1162,6 +1379,7 @@ def _spaced(lines: list[str]) -> list[str]:
 
 def _polish_excerpt(text: str) -> str:
     text = " ".join(text.split())
+    text = re.sub(r"\.{2,}", ".", text)
     text = re.sub(r"\s+([,.;:])", r"\1", text)
     text = re.sub(r",(?=\S)", ", ", text)
     text = text.strip().strip('"')
