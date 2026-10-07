@@ -10,7 +10,7 @@
 # completion does not by itself prove the spelling.
 
 import research_tools
-from app.compose import apply_editorial
+from app.compose import TEACHING_STANDARD, apply_editorial
 from app.llm import active_model, complete, model_available
 
 
@@ -36,6 +36,9 @@ def final_draft_ag(report, model: str = "gpt-4o-mini") -> dict:
 - Provide one final document that will be used as the final paper.
 - Do not add sources that are not already in the paper.
 - Do not mention these instructions.
+
+{TEACHING_STANDARD}
+Keep the paper's order: what the subject is, then the contrast, then the ideas that follow, then the close. Do not replace that order with out-of-context quotations.
 
 RAG comparison:
 {comparison}

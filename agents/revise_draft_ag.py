@@ -12,7 +12,7 @@
 # reorganizes the draft already in hand.
 
 import research_tools
-from app.compose import revised_report
+from app.compose import TEACHING_STANDARD, revised_report
 from app.llm import complete, load_json_output, model_available
 
 
@@ -35,6 +35,9 @@ Your reflection should discuss:
 Then revise the report using your reflection. The revised report should improve
 clarity, organization, accuracy, depth of knowledge, and academic tone while preserving
 the important information from the original report. Do not invent sources.
+
+{TEACHING_STANDARD}
+Keep the order already in the draft: what the subject is, then the contrast, then the ideas that follow, then the close. Do not turn the paper back into a list of excerpts.
 
 Return ONLY valid JSON using exactly this structure:
 {{"reflection": "<structured reflection text>", "revised_report": "<improved version of the report>"}}

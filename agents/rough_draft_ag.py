@@ -12,7 +12,7 @@
 # before parsing. With no model key, the draft is built from the brief.
 
 import research_tools
-from app.compose import first_draft
+from app.compose import TEACHING_STANDARD, first_draft
 from app.llm import complete, load_json_output, model_available
 
 
@@ -32,6 +32,9 @@ Your academic writing should be detailed, accurate, and properly sourced from th
 - Suggest areas of improvement, place footnotes on areas lacking depth of knowledge.
 
 Then write an academic research paper using the instructions given. The first draft should have clarity, organization, correct grammar, academic tone, and well-thought out written points.
+
+{TEACHING_STANDARD}
+Use these section headings when the records support them: What the records support; Retrieved records; Limits of the evidence; Conclusion; References.
 
 Return ONLY valid JSON using exactly this structure:
 {{"first_draft": "<structured first draft>"}}

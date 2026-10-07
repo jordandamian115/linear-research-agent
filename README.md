@@ -35,6 +35,14 @@ Agent 1 searches arXiv and the web for the question you type. The reference shel
 - With neither key, those steps are composed locally from the records the searches return. They do not invent citations.
 - `TAVILY_API_KEY` — web search uses the key. Without it, search sends a keyless request. If that fails, the tool returns an empty local fallback and says so. It does not invent pages.
 
+## CI/CD (continuous integration and development)
+
+Refinements after the first desk, in the order they were made:
+
+- Live Tavily and arXiv for any topic. Writers stay on local composition until `XAI_API_KEY` (`grok-3-mini`, or `XAI_MODEL`) or `OPENAI_API_KEY` (`gpt-4o` / `gpt-4o-mini`). Grok 4o mini and `gpt-4l-mini` were placeholders, not runnable model ids.
+- UI: their agent intro, placeholder “enter your inquiry here”, one “Gather information” button, collapsed left menu of indexed sources, “Results”, a dropdown per finished agent, then the full paper with Download HTML, then the graphic with Download JPEG.
+- This pass: coherent basic academic report, basics first, points leading into points, tested on “quantum physics”.
+
 ## Downloads
 
 When a run finishes, the page offers the final paper as HTML and Agent 6's picture as JPEG.
