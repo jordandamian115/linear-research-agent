@@ -1,0 +1,7 @@
+inquiry: ada lovelace
+verdict: worked
+stage: none
+words: 592
+graphic_steps: 6
+opening: Ada Lovelace (born December 10, 1815, Piccadilly Terrace, Middlesex [now in London], England—died November 27, 1852, Marylebone, London) was an English mathematician, an associate of Charles Babbage, for whose prototype of a digital computer she created a program.
+failure: none

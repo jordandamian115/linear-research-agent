@@ -1,0 +1,7 @@
+inquiry: stock market
+verdict: worked
+stage: none
+words: 581
+graphic_steps: 6
+opening: The New York Stock Exchange (NYSE) is a physical exchange, with a hybrid market for placing orders electronically from any location as well as on the trading floor.
+failure: none

@@ -1,0 +1,7 @@
+inquiry: the telescope
+verdict: worked
+stage: none
+words: 661
+graphic_steps: 6
+opening: Credit: NASA/JPL-Caltech A telescope is a tool that astronomers use to see faraway objects.
+failure: none

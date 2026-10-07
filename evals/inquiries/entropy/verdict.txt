@@ -1,0 +1,7 @@
+inquiry: entropy
+verdict: worked
+stage: none
+words: 593
+graphic_steps: 6
+opening: In physics, entropy is a measure of a system's thermal energy that is unavailable for doing useful work.
+failure: none

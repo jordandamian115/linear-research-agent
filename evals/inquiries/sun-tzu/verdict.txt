@@ -1,0 +1,7 @@
+inquiry: sun tzu
+verdict: worked
+stage: none
+words: 942
+graphic_steps: 6
+opening: Sun Tzu (/ˌsʊnˈsuː/; traditional Chinese: 孫子; simplified Chinese: 孙子; pinyin: Sūnzǐ) was a Chinese military general, strategist, philosopher, and writer who lived during the Eastern Zhou period (771–256 BC).
+failure: none

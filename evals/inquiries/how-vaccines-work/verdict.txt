@@ -1,0 +1,7 @@
+inquiry: how vaccines work
+verdict: worked
+stage: none
+words: 897
+graphic_steps: 6
+opening: The active ingredient in all vaccines is an antigen, the name for any substance that causes the immune system to begin producing antibodies.
+failure: none

@@ -1,0 +1,7 @@
+inquiry: the revolutionary way
+verdict: fell through
+stage: search relevance
+words: 759
+graphic_steps: 6
+opening: Unfortunately, with the exponential growth in data, users often have difficulty in visualizing the often-unstructured, non-homogeneous data coming from a variety of sources.
+failure: The only record that contains both words is a 3D-printing poster, so the paper is not an overview of one subject.

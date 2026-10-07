@@ -39,6 +39,7 @@ Refinements after the first agent, in the order they were made:
 - This pass: any ordinary topic with public records gets a paper. A physics-only sentence filter had dropped “hypertrophy in bodybuilding” after the search returned pages. If the tools return nothing, the page says so.
 - This pass: the graphic is five or six steps from that paper, each a concept and an example, in the paper’s order. It does not draw the agents or the search.
 - This pass: the name a person sees is Linear Research Agent. Leftover “desk” on the page, in errors, and in the build note now says “agent”.
+- This pass: a three-letter content word is kept, so “the revolutionary war” is not searched or taught as the single stem “revolutionary”. A later record is not joined with “carries that idea one step further” unless it is the same subject. The evals are in `evals/`.
 
 ## Downloads
 

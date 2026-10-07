@@ -1,0 +1,7 @@
+inquiry: how a lock and key works
+verdict: fell through
+stage: writer stitching
+words: 548
+graphic_steps: 6
+opening: A key is a device that is used to operate a lock (to lock or unlock it).
+failure: Only two sentences survived, so the paper is a tidbit and does not walk through how a lock works.

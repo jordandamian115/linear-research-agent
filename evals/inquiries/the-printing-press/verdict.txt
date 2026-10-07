@@ -1,0 +1,7 @@
+inquiry: the printing press
+verdict: worked
+stage: none
+words: 649
+graphic_steps: 6
+opening: A printing press is a machine that applies pressure to transfer ink onto a surface made of paper, cloth, or a similar material.
+failure: none

@@ -1,0 +1,7 @@
+inquiry: quantum computing
+verdict: worked
+stage: none
+words: 960
+graphic_steps: 6
+opening: Quantum computing is an emerging field of computer science and engineering that uses principles from quantum mechanics to process information at top speeds.
+failure: none

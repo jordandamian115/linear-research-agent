@@ -27,6 +27,26 @@ from __future__ import annotations
 # titles sat later, labeled only as "web", and a title with an empty
 # snippet was dropped. The log now names Tavily, the HTTP status, and each
 # returned URL before the excerpts.
+# "the revolutionary war" became one fake argument. The question's content
+# words of three letters were discarded, so the only term left was
+# "revolutionary". That stem also matches "revolution", and the same-sense
+# check never ran, because it required two or more terms. Algorithm papers
+# and an image de-rendering paper were then full matches. The writer joined
+# their sentences to a real Revolutionary War page with "The next record
+# carries that idea one step further", which asserts a continuation the
+# records do not have. "by means of" was read as a definition, and "the
+# course of human events" was read as a classroom, so those sentences were
+# filed into one sequence. Short content words now stay. A record that
+# misses one of them is not written into the argument. The handoff is used
+# only among records that still match the whole question. No topic is named
+# in that rule. The reference shelf did not supply those sentences.
+# A later pass still joined two subjects that each contained the whole
+# question: a marketplace and a trade route that share a name, a kitchen
+# refrigerator and a quantum one. They shared only function words such as
+# "works". The paper now keeps the record whose title is the question, and
+# a later record stays only when it shares a concrete word with that thread.
+# A one-letter misspelling still matches the page ("porche", "ghengis",
+# "wallstree"). The shelf is still not the source of the claims.
 
 TEACHING_STANDARD = """
 Write a basic academic paper someone could hand to another person or turn in for a class.
@@ -441,10 +461,14 @@ def _distinctive(text: str, terms: list[str]) -> set[str]:
         "resource", "promote", "innovation", "limited", "challenge", "early",
         "detection", "found", "shown", "using", "based", "range", "chronic",
         "disease", "measurement", "measurements", "automatically", "accurately",
+        "causing", "solution", "technology", "development", "environmental",
+        "useful", "unavailable", "measure", "measures",
+        "requirement", "requirements", "parameters", "parameter", "assumes",
+        "assumption", "assumptions", "proposed", "framework", "approach",
     }
     return {
         word for word in _content_words(text)
-        if word not in terms and word not in generic and len(word) > 5
+        if not any(_term_in(word, term) for term in terms) and word not in generic and len(word) > 5
     }
 
 
@@ -545,6 +569,13 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
             parts.append(f"The same record continues: {_finish(extra)} [{cite(step['source'])}]")
         return " ".join(parts)
 
+    # A record that matches only part of a multi-word question is a different
+    # subject. Leave it out instead of stitching it on with a continuation
+    # the two texts do not share. When two full matches still describe
+    # different subjects, keep the thread whose title is the question.
+    terms = _query_terms(query)
+    steps = _subject_thread([step for step in steps if _on_question(step, terms)], terms)
+
     present = [role for role, _limit in _ROLE_PLAN if group(role)]
 
     def next_role(role: str) -> str | None:
@@ -553,8 +584,16 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
         index = present.index(role)
         return present[index + 1] if index + 1 < len(present) else None
 
+    def related(chosen: list[dict]) -> list[dict]:
+        kept: list[dict] = []
+        for step in chosen:
+            if kept and not _shares_subject(kept[-1], step, terms):
+                continue
+            kept.append(step)
+        return kept
+
     support: list[str] = []
-    opening = group("definition") + group("scope")
+    opening = related(group("definition") + group("scope"))
     if opening:
         bits = []
         for index, step in enumerate(opening):
@@ -567,7 +606,7 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
                 bits.append(f"The next record says where that behavior shows up: {line}")
         bits.append(_handoff(opening[-1]["role"], next_role(opening[-1]["role"])))
         support.append(" ".join(bits))
-    contrasts = group("contrast")
+    contrasts = related(group("contrast"))
     if contrasts:
         bits = [developed(contrasts[0], cited(contrasts[0]))]
         for step in contrasts[1:]:
@@ -576,7 +615,7 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
         support.append(" ".join(bits))
     previous = "contrast" if contrasts else "definition"
     for role in ("discrete", "example", "duality", "knowledge", "uncertainty", "further", "works", "path"):
-        chosen = group(role)
+        chosen = related(group(role))
         if not chosen:
             continue
         bits = []
@@ -968,7 +1007,18 @@ def _role(sentence: str, terms: list[str] | None = None) -> str | None:
     overlap = _query_overlap(sentence, terms) if terms else 0
     # "Formula" alone is not a math lesson. A winning formula for a workout
     # is still about how the subject works.
-    classroom = bool(re.search(r"\b(schools?|students?|teach|tutorial)\b", text) or re.search(r"\b(a|the|this) course\b", text))
+    # "the course of human events" is not a class. A classroom record says
+    # "a course" and then a subject, not "course of".
+    # "students' revolutionary organization" is a biography, not a lesson.
+    # A classroom record has to be about teaching.
+    classroom = bool(
+        re.search(r"\b(teach|tutorial)\b", text)
+        or re.search(r"\b(a|the|this) course\b(?!\s+of\b)", text)
+        or (
+            re.search(r"\b(schools?|students?)\b", text)
+            and re.search(r"\b(learn|class|course|school|teach)\b", text)
+        )
+    )
     math_formula = bool(re.search(r"\bformulas?\b", text) and re.search(r"\b(math|equation|course|class|minimum)\b", text))
     if (classroom or math_formula) and "programming" not in text and not re.search(r"\bis the (study|science|field|fundamental)\b", text):
         return "path"
@@ -997,21 +1047,28 @@ def _role(sentence: str, terms: list[str] | None = None) -> str | None:
         return "definition"
     if any(cue in text for cue in ("is the fundamental", "explores the behavior", "describes the behavior", "studies how", "describes nature")):
         return "definition"
+    if overlap >= 1 and not re.match(r"there (is|are)\b", text) and re.search(
+        r"\b(is|are|was|were) (a|an|the)\b|\b(was|were) born\b",
+        text,
+    ):
+        return "definition"
     if any(cue in text for cue in ("unlike ", "whereas", "rather than", "compared with", "in contrast", "difference between")):
         return "contrast"
     if overlap >= 1 and "however," in text:
         return "contrast"
     if overlap >= 1 and re.search(r"\b(is|are) (a |an )?(different|distinct)\b", text):
         return "contrast"
+    # "by means of" is a method, not a definition. "X is a …" / "X was a …"
+    # still says what the subject is, for any topic.
     if overlap >= 1 and not re.match(r"there (is|are)\b", text) and re.search(
-        r"\b(means|refers to|defined as)\b|\b(is|are) (the |a |an )?(process|study|science|field|branch|theory|growth|enlargement)\b",
+        r"(?<!by )means\b|\brefers to\b|\bdefined as\b|\b(is|are|was|were) (the |a |an )?(process|study|science|field|branch|theory|growth|enlargement)\b",
         text,
     ):
         return "definition"
     if overlap >= 1 and re.search(r"\b(goal|goals|purpose|aim|aims)\b", text) and re.search(r"\b(is|are)\b", text):
         return "definition"
     if overlap >= 1 and re.search(
-        r"\b(cause|causes|caused|increase|increases|increased|lead|leads|result|results|occur|occurs|happen|happens|work|works|grow|grows|growth|process|produce|produces|require|requires|use|uses|used|make|makes|change|changes|allow|allows|help|helps|achieve|achieved|train|training|build|builds|building|plays)\b",
+        r"\b(cause|causes|caused|increase|increases|increased|lead|leads|result|results|occur|occurs|happen|happens|work|works|grow|grows|growth|process|produce|produces|require|requires|use|uses|used|make|makes|change|changes|allow|allows|help|helps|achieve|achieved|train|training|build|builds|building|plays|arose|began|founded|fought|lasted|ended|started)\b",
         text,
     ):
         return "works"
@@ -1087,12 +1144,109 @@ def _reference_line(index: int, source: dict) -> str:
     return f"[{index}] {_who(source)}. {title}. {venue}, {when}. {url}"
 
 
+def _title_focus(source: dict, terms: list[str]) -> tuple[int, int]:
+    """Prefer a page whose title is the question over a paper that only mentions it."""
+    title = source.get("title") or ""
+    hits = _query_overlap(title, terms)
+    extra = len([word for word in _query_terms(title) if word not in terms])
+    return (hits, -extra)
+
+
+def _seed_rank(step: dict, terms: list[str]) -> tuple[int, int, int]:
+    """Anchor on the sentence that says what the subject is.
+
+    The shortest title won before this. For "the revolutionary war" that
+    title was a Mount Vernon card whose sentence advertises a book, and the
+    Battlefield Trust page was then dropped because it did not share words
+    with the advertisement. A book, a poster, or "this study" is not the
+    definition. "Works by" is.
+    """
+    sentence = step["sentence"].lower()
+    hits, extra = _title_focus(step["source"], terms)
+    teach = 4 if step["role"] == "definition" else 0
+    if re.search(r"\b(is|are|was|were) (a|an|the)\b", sentence):
+        teach += 2
+    if re.search(r"\b(refers to|defined as|is the study|work(?:s)? by)\b", sentence):
+        teach += 3
+    if re.search(r"\b(book|author|novel|memoir|poster|this study|this paper|we propose|we show|novel solution)\b", sentence):
+        teach -= 5
+    return (teach, hits, extra)
+
+
+def _subject_thread(steps: list[dict], terms: list[str]) -> list[dict]:
+    """Keep one subject.
+
+    A marketplace named Silk Road and the historical road both contain the
+    question, and so do a biography and a grant that uses the same name.
+    The sentence that says what the subject is anchors the paper. Later
+    records stay only when they share a concrete word with that thread.
+    """
+    if len(steps) < 2:
+        return steps
+    seed = max(steps, key=lambda step: _seed_rank(step, terms))
+    # Compare every record with the anchor, not with a chain of neighbors.
+    # A chain let an allocation model ride along with a page that says how
+    # a vaccine works, because each pair shared some ordinary word.
+    return [step for step in steps if step is seed or _shares_subject(seed, step, terms)]
+
+
+def _shares_subject(previous: dict, step: dict, terms: list[str]) -> bool:
+    """A later record continues the point only when the two texts share the subject.
+
+    Matching the question is not enough. Two pages can each say "revolutionary"
+    and still be about algorithms and about a war. The handoff is withheld
+    unless a concrete word other than the question appears in both.
+    """
+    if previous["source"].get("url") and previous["source"].get("url") == step["source"].get("url"):
+        return True
+    # Titles repeat the question and a place name. Compare the sentences.
+    # A cybersecurity paper titled with "Maritime Silk Road" was joining the
+    # history page because the title, not the claim, shared "maritime".
+    prev_blob = previous["sentence"]
+    next_blob = step["sentence"]
+    # A shared function word ("works", "used", "first") is not a shared subject.
+    # The dark-web Silk Road and the historical road, and a quantum refrigerator
+    # and a kitchen refrigerator, were joined on words like those.
+    return len(_distinctive(prev_blob, terms) & _distinctive(next_blob, terms)) >= 1
+
+
+def _on_question(step: dict, terms: list[str]) -> bool:
+    """True when the record still matches every content word of the question.
+
+    One shared stem is not the question. "revolutionary" alone kept papers
+    about algorithms and artefacts beside a page about the war.
+    """
+    blob = (
+        f"{step['source'].get('title', '')} "
+        f"{step['source'].get('excerpt') or step['source'].get('summary') or ''} "
+        f"{step['sentence']}"
+    )
+    if not terms:
+        return True
+    needed = len(terms) if len(terms) >= 2 else 1
+    return _query_overlap(blob, terms) >= needed
+
+
 def _query_terms(query: str) -> list[str]:
-    stop = {"what", "when", "where", "which", "with", "from", "that", "this", "into", "about", "does", "have"}
+    # "the" and "of" are not the subject. "war", "sun", and "way" are.
+    # Dropping every word of three letters turned "the revolutionary war"
+    # into the single stem "revolutionary".
+    stop = {
+        "the", "and", "for", "are", "was", "not", "but", "you", "how", "why",
+        "who", "its", "his", "her", "our", "can", "may", "did", "has", "had",
+        "any", "all", "via", "per", "off", "out", "what", "when", "where",
+        "which", "with", "from", "that", "this", "into", "about", "does",
+        "have", "been", "were", "will", "your", "their", "them", "then",
+        "there", "these", "they", "would", "could", "should", "shall",
+        "over", "same", "some", "such", "than", "only", "other", "more",
+        "most", "also", "just", "under", "through", "during", "being",
+        "before", "after", "again", "because", "between", "while", "using",
+        "used",
+    }
     return [
         word.lower()
         for word in re.findall(r"[A-Za-z][A-Za-z0-9'-]+", query)
-        if len(word) > 3 and word.lower() not in stop
+        if len(word) >= 3 and word.lower() not in stop
     ]
 
 
@@ -1174,10 +1328,46 @@ def _query_overlap(text: str, terms: list[str]) -> int:
 def _term_in(text: str, term: str) -> bool:
     if re.search(rf"\b{re.escape(term)}\b", text):
         return True
+    # "works" meets "work". A trailing s is an ending, not a different subject.
+    if len(term) >= 5 and term.endswith("s") and re.search(rf"\b{re.escape(term[:-1])}\b", text):
+        return True
     # "bodybuilding" should meet "bodybuilders" without listing each topic's endings.
     if len(term) >= 8 and re.search(rf"\b{re.escape(term[:8])}", text):
         return True
+    # One mistyped letter, or two letters swapped, still names the subject.
+    # "porche" is Porsche, "ghengis" is Genghis, "wallstree" is Wall Street.
+    # A plural such as "porches" is not that typo.
+    words = re.findall(r"[a-z0-9]+", text.lower())
+    for index, word in enumerate(words):
+        if _typo(word, term):
+            return True
+        if index + 1 < len(words) and _typo(word + words[index + 1], term):
+            return True
     return False
+
+
+def _typo(word: str, term: str) -> bool:
+    if len(term) < 5 or len(word) < 5 or abs(len(word) - len(term)) > 2:
+        return False
+    if word in {term + "s", term + "es"} or term in {word + "s", word + "es"}:
+        return False
+    distance = _edits(word, term)
+    if distance <= 1:
+        return True
+    return distance == 2 and len(term) >= 7 and sorted(word) == sorted(term)
+
+
+def _edits(left: str, right: str) -> int:
+    if abs(len(left) - len(right)) > 2:
+        return 3
+    previous = list(range(len(right) + 1))
+    for i, a in enumerate(left, start=1):
+        current = [i]
+        for j, b in enumerate(right, start=1):
+            cost = 0 if a == b else 1
+            current.append(min(current[-1] + 1, previous[j] + 1, previous[j - 1] + cost))
+        previous = current
+    return previous[-1]
 
 
 def _noisy(text: str) -> bool:

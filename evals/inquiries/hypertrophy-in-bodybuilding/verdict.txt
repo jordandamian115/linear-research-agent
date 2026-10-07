@@ -1,0 +1,7 @@
+inquiry: hypertrophy in bodybuilding
+verdict: worked
+stage: none
+words: 811
+graphic_steps: 6
+opening: A common misconception is that hypertrophy training is the domain of blokes and bodybuilders, it is not.
+failure: none

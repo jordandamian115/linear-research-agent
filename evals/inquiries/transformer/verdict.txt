@@ -1,0 +1,7 @@
+inquiry: transformer
+verdict: worked
+stage: none
+words: 711
+graphic_steps: 5
+opening: Self-attention mechanism is the key of the Transformer but often criticized for its computation demands.
+failure: none

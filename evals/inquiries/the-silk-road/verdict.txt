@@ -1,0 +1,7 @@
+inquiry: the silk road
+verdict: fell through
+stage: writer stitching
+words: 540
+graphic_steps: 6
+opening: The term "Maritime Silk Road" is a modern name, acquired from its similarity to the overland Silk Road.
+failure: The paper stops after two sentences about the maritime name and does not tell how the route worked.

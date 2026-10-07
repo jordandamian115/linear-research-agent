@@ -5,6 +5,11 @@
 # whatever question was typed. It does not consult the RAG shelf. An exact
 # phrase often misses, so a keyword search for that same topic is the
 # fallback. They were close: the schema already takes any query string.
+# The keyword fallback dropped every word of three letters and, when the
+# longer words were still too many, it searched the first word alone.
+# "the revolutionary war" therefore became a search for "revolutionary",
+# which is a different subject. Three-letter content words stay. A question
+# with two or more content words is never searched as one leftover word.
 
 import re
 import urllib.error
@@ -20,6 +25,9 @@ _STOP = {
     "when", "where", "which", "while", "with", "would", "your", "does",
     "have", "been", "were", "will", "shall", "should", "make", "makes",
     "using", "used", "into", "under", "through", "during", "while",
+    "the", "and", "for", "are", "was", "not", "but", "you", "how", "why",
+    "who", "its", "his", "her", "our", "can", "may", "did", "has", "had",
+    "any", "all", "via", "per", "off", "out", "also", "just",
 }
 
 _ATOM = {"a": "http://www.w3.org/2005/Atom"}
@@ -37,11 +45,12 @@ def arxiv_search(query: str, max_results: int = 5) -> dict:
         words = [
             word
             for word in re.findall(r"[A-Za-z0-9]+", quoted)
-            if len(word) > 3 and word.lower() not in _STOP
+            if len(word) >= 3 and word.lower() not in _STOP
         ]
-        # Drop one keyword at a time. A wide OR pulls papers about a single
-        # common word and misses the question.
-        for size in range(min(3, len(words)), 0, -1):
+        # Drop one keyword at a time, but never down to a single leftover
+        # word. A wide OR, and a one-word AND, both pull a different subject.
+        smallest = 2 if len(words) >= 2 else 1
+        for size in range(min(3, len(words)), smallest - 1, -1):
             if results:
                 break
             focused = " AND ".join(f"all:{word}" for word in words[:size])

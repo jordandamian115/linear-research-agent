@@ -1,0 +1,7 @@
+inquiry: quantum physics
+verdict: worked
+stage: none
+words: 952
+graphic_steps: 6
+opening: Quantum physics is the study of matter and energy at the most fundamental level.
+failure: none

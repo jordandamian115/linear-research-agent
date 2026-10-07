@@ -1,0 +1,7 @@
+inquiry: the revolutionary war
+verdict: worked
+stage: none
+words: 764
+graphic_steps: 5
+opening: The Revolutionary War was a war unlike any other — one of ideas and ideals, that shaped “the course of human events.
+failure: none

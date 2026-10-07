@@ -1,0 +1,7 @@
+inquiry: ghengis khan
+verdict: worked
+stage: none
+words: 705
+graphic_steps: 6
+opening: Genghis Khan (born 1162, near Lake Baikal, Mongolia—died August 18, 1227) was a Mongolian warrior-ruler, one of the most famous conquerors of history, who consolidated tribes into a unified Mongolia and then extended his empire across Asia to the Adriatic Sea.
+failure: none

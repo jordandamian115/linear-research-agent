@@ -1,0 +1,7 @@
+inquiry: porche
+verdict: worked
+stage: none
+words: 551
+graphic_steps: 6
+opening: Porsche AG, commonly known as Porsche, is a German automobile manufacturer specializing in luxury, high-performance sports cars, SUVs and sedans, headquartered in Stuttgart, Baden-Württemberg, Germany.
+failure: none
