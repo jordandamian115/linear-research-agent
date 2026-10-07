@@ -9,11 +9,17 @@ from __future__ import annotations
 # thin. They did not say how to order that paper so a beginner can learn it.
 # This composer outlines the returned records, keeps the ones that explain
 # the subject, and writes from that outline. It does not invent citations.
+# The one-sentence-per-idea version was the right shape and too short to
+# talk from. A reader got the order and could not say how one idea led to
+# the next. This version keeps that order and develops each step with the
+# next explanatory sentences from the same records.
 
 TEACHING_STANDARD = """
 Write a basic academic paper someone could hand to another person or turn in for a class.
 - Start with what the subject is.
 - Then give the core ideas in an order that builds, each point leading into the next.
+- Write enough that a reader can talk through the basics: what the subject is, the core ideas in order, how one idea leads to the next, and where the account stops.
+- Develop each idea with the next explanatory sentences from the records. Do not lengthen the paper by repeating a quotation.
 - Do not dump out-of-context quotations or unrelated excerpts.
 - Use only records included below. Do not invent citations, experiments, numbers, or quotations.
 - If a retrieved record does not help explain the subject, leave it out of the argument and say it was set aside.
@@ -127,17 +133,20 @@ def first_draft(report: str) -> str:
 
 # Teaching order. A later role is used only after the earlier ones that exist,
 # so the paper moves from what the subject is toward a closer a beginner can use.
+# One sentence per idea was too thin to talk from. Two sentences are kept
+# when a second record, or the next sentence of the same record, actually
+# develops the point. The cap stops the section from becoming a second dump.
 _ROLE_PLAN = (
     ("definition", 2),
-    ("scope", 1),
+    ("scope", 2),
     ("contrast", 2),
-    ("discrete", 1),
+    ("discrete", 2),
     ("example", 1),
-    ("duality", 1),
-    ("knowledge", 1),
+    ("duality", 2),
+    ("knowledge", 2),
     ("uncertainty", 1),
     ("further", 1),
-    ("path", 1),
+    ("path", 2),
 )
 
 _ROLE_JOB = {
@@ -178,7 +187,7 @@ def _outline(query: str, sources: list[dict]) -> dict:
         if not found:
             aside.append(source)
             continue
-        prepared.append({**source, "candidates": found})
+        prepared.append({**source, "candidates": found, "sequence": _sequence(text)})
     return {"steps": _pick_steps(prepared), "aside": aside}
 
 
@@ -237,6 +246,106 @@ def _attach_example(prepared: list[dict], steps: list[dict], used: set[str]) -> 
                     return
 
 
+def _sequence(text: str) -> list[str]:
+    ordered = []
+    seen = set()
+    for sentence in sentences(text):
+        sentence = _polish_excerpt(sentence)
+        key = sentence.lower()
+        if key in seen:
+            continue
+        if _usable(sentence) or _continuation(sentence):
+            seen.add(key)
+            ordered.append(sentence)
+    return ordered
+
+
+def _continuation(sentence: str) -> bool:
+    """A following sentence may start with It or This when it develops the previous one."""
+    if not re.match(r"(It|This|These|That)\b", sentence):
+        return False
+    words = sentence.split()
+    if not 10 <= len(words) <= 40:
+        return False
+    if _noisy(sentence) or "…" in sentence or "..." in sentence:
+        return False
+    if sentence.count("“") != sentence.count("”") or sentence.count('"') % 2:
+        return False
+    return bool(re.search(
+        r"\b(aims|means|describes|explains|shows|calls|refers|understands|names|becomes)\b",
+        sentence,
+        re.I,
+    ))
+
+
+def _follows(step: dict, used: set[str], limit: int = 2) -> list[str]:
+    """Next explanatory sentences in the same record. Later teaching steps are left for their own place."""
+    sequence = step["source"].get("sequence") or []
+    anchor = step["sentence"]
+    try:
+        index = sequence.index(anchor)
+    except ValueError:
+        return []
+    later_roles = {role for role, _limit in _ROLE_PLAN}
+    anchor_words = set(_content_words(anchor))
+    found = []
+    for sentence in sequence[index + 1:]:
+        if sentence in used:
+            continue
+        role = _role(sentence) if _usable(sentence) else None
+        if role and role != step["role"] and role in later_roles:
+            break
+        if not _usable(sentence) and not _continuation(sentence):
+            continue
+        if any(cue in sentence.lower() for cue in ("absolute zero", "coldest", "nothing colder")):
+            continue
+        words = set(_content_words(sentence))
+        if not words:
+            continue
+        shared = anchor_words & words
+        # A near-copy of the sentence just used does not teach the next step.
+        if anchor_words and len(shared) / len(anchor_words) > 0.55:
+            continue
+        if len(shared) < 1 and not _continuation(sentence):
+            continue
+        found.append(sentence)
+        if len(found) == limit:
+            break
+    return found
+
+
+def _content_words(sentence: str) -> list[str]:
+    stop = {
+        "that", "this", "with", "from", "they", "them", "their", "have", "been", "were",
+        "what", "when", "where", "which", "into", "about", "than", "then", "also", "only",
+        "such", "each", "some", "more", "most", "very", "other", "these", "those",
+    }
+    return [
+        word.lower()
+        for word in re.findall(r"[A-Za-z][A-Za-z0-9'-]+", sentence)
+        if len(word) > 3 and word.lower() not in stop
+    ]
+
+
+def _spoken(role: str) -> str:
+    if role == "definition":
+        return "what the subject is"
+    if role == "scope":
+        return "where the phenomena show up"
+    if role == "contrast":
+        return "the contrast with the ordinary case the records name"
+    return _ROLE_JOB.get(role, "the next point")
+
+
+def _handoff(role: str, next_role: str | None) -> str:
+    if not next_role:
+        return (
+            "Stop after that sentence when you explain this. "
+            "The records do not supply a further step, and this paper does not invent one."
+        )
+    return f"From {_spoken(role)}, the records go next to {_spoken(next_role)}."
+
+
 def _write_from_outline(query: str, title: str, today: str, outline: dict) -> str:
     framed = _frame(query)
     steps = outline["steps"]
@@ -256,34 +365,59 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
     def group(role: str) -> list[dict]:
         return [step for step in steps if step["role"] == role]
 
+    used_sentences = {step["sentence"] for step in steps}
+
+    def developed(step: dict, line: str) -> str:
+        parts = [line]
+        for extra in _follows(step, used_sentences):
+            used_sentences.add(extra)
+            parts.append(f"The same record continues: {_finish(extra)} [{cite(step['source'])}]")
+        return " ".join(parts)
+
+    present = [role for role, _limit in _ROLE_PLAN if group(role)]
+
+    def next_role(role: str) -> str | None:
+        if role not in present:
+            return present[0] if present else None
+        index = present.index(role)
+        return present[index + 1] if index + 1 < len(present) else None
+
     support: list[str] = []
     opening = group("definition") + group("scope")
     if opening:
         bits = []
         for index, step in enumerate(opening):
-            line = cited(step)
+            line = developed(step, cited(step))
             if index == 0:
                 bits.append(line)
             elif step["role"] == "definition":
                 bits.append(f"The next record strengthens that opening: {line}")
             else:
                 bits.append(f"The next record says where that behavior shows up: {line}")
-        if group("contrast") or group("discrete") or group("duality"):
-            bits.append(
-                "What follows is the contrast, and then the ideas, that these retrieved records actually state."
-            )
+        bits.append(_handoff(opening[-1]["role"], next_role(opening[-1]["role"])))
         support.append(" ".join(bits))
     contrasts = group("contrast")
     if contrasts:
-        bits = [cited(contrasts[0])]
+        bits = [developed(contrasts[0], cited(contrasts[0]))]
         for step in contrasts[1:]:
-            bits.append(f"The next record strengthens that contrast: {cited(step)}")
+            bits.append(f"The next record strengthens that contrast: {developed(step, cited(step))}")
+        bits.append(_handoff("contrast", next_role("contrast")))
         support.append(" ".join(bits))
     previous = "contrast" if contrasts else "definition"
     for role in ("discrete", "example", "duality", "knowledge", "uncertainty", "further", "path"):
-        for step in group(role):
-            support.append(f"{_idea_lead(role, step['sentence'], previous)} {cited(step)}")
+        chosen = group(role)
+        if not chosen:
+            continue
+        bits = []
+        for index, step in enumerate(chosen):
+            line = developed(step, cited(step))
+            if index == 0:
+                bits.append(f"{_idea_lead(role, step['sentence'], previous)} {line}")
+            else:
+                bits.append(f"The next record carries that idea one step further: {line}")
             previous = role
+        bits.append(_handoff(role, next_role(role)))
+        support.append(" ".join(bits))
     if not support:
         support.append(
             "The search returned records, but none of them stated the subject in language a paper can teach. "
@@ -316,8 +450,10 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
         "## Abstract",
         (
             f"{framed['abstract']} "
-            "The account starts with what the retrieved records say the subject is. "
-            "It uses a later record only when that record adds the next point. "
+            "It is written so a reader can talk through the basics: what the subject is, "
+            "the core ideas in the order the records support, how each idea leads to the next, "
+            "and where the account stops. "
+            "A later sentence is used only when it adds that next point. "
             "Claims stay inside the sentences the search returned."
         ),
         "",
@@ -325,6 +461,11 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
         f"The question guiding this paper is: {framed['guide']}",
         "",
         f"The pages move in one direction. {direction} A reader who reaches the close can restate that sequence.",
+        "",
+        "Read the body as a conversation. Begin with what the subject is. "
+        "Use the contrast next, when the records set that account beside an ordinary case. "
+        "Take each later idea only because a retrieved sentence carries the previous one forward. "
+        "Stop where those sentences stop.",
         "",
         "## What the records support",
         *_spaced(support),
@@ -373,25 +514,29 @@ def _reading_path(steps: list[dict], cite) -> str:
             groups[-1]["numbers"].append(number)
             continue
         groups.append({"role": step["role"], "numbers": [number], "sentence": step["sentence"]})
-    lines = [
-        "The sentences above are the teaching sequence, not a sample of every record the search returned."
+    paragraphs = [
+        "The sentences above are the teaching sequence, not a sample of every record the search returned. "
+        "Use them in this order when you tell someone how the subject works."
     ]
     for index, group in enumerate(groups):
         marks = " and ".join(f"[{number}]" for number in dict.fromkeys(group["numbers"]))
-        if group["role"] == "definition":
-            spoken = "what the subject is"
-        elif group["role"] == "scope":
-            spoken = "where the phenomena show up"
-        elif group["role"] == "contrast":
-            spoken = "the contrast with classical physics"
-        else:
-            spoken = _label_from_sentence(group["role"], group["sentence"])
+        spoken = _spoken(group["role"]) if group["role"] in {"definition", "scope", "contrast"} else _label_from_sentence(group["role"], group["sentence"])
         if index == 0:
-            lines.append(f"They begin with {spoken} {marks}.")
+            paragraphs.append(
+                f"Start with {spoken}, using {marks}. "
+                "Do not open on a later idea. A listener needs this sentence before the rest of the account has a place to stand."
+            )
         else:
-            lines.append(f"They next give {spoken} {marks}.")
-    lines.append("A citation in this list is only the sentence used for that step.")
-    return " ".join(lines)
+            previous = _spoken(groups[index - 1]["role"]) if groups[index - 1]["role"] in {"definition", "scope", "contrast"} else _label_from_sentence(groups[index - 1]["role"], groups[index - 1]["sentence"])
+            paragraphs.append(
+                f"Move next to {spoken}, using {marks}. "
+                f"This step follows {previous}. It does not repeat that earlier sentence, and it does not skip to a point the records have not reached."
+            )
+    paragraphs.append(
+        "Each citation is the sentence used for that step. "
+        "A neighboring excerpt that was not needed for the handoff stays out of the conversation."
+    )
+    return "\n\n".join(paragraphs)
 
 
 def _limits(aside: list[dict], today: str) -> str:
@@ -424,18 +569,25 @@ def _closer(steps: list[dict], cite) -> str:
         bits.append(f"The subject is the one named in the opening {marks}.")
     if contrasts:
         marks = "".join(f"[{cite(step['source'])}]" for step in contrasts)
-        bits.append(f"It is distinct from the classical physics set beside that opening {marks}.")
-    idea_bits = []
-    for role in ("discrete", "example", "duality", "knowledge", "uncertainty", "further", "path"):
+        blob = " ".join(step["sentence"].lower() for step in contrasts)
+        if "classical" in blob:
+            bits.append(f"It is distinct from the classical physics set beside that opening {marks}.")
+        else:
+            bits.append(f"It is set beside the ordinary case named next to that opening {marks}.")
+    spoken = []
+    for role in ("scope", "discrete", "example", "duality", "knowledge", "uncertainty", "further", "path"):
         chosen = [step for step in steps if step["role"] == role]
         if not chosen:
             continue
-        marks = "".join(f"[{cite(step['source'])}]" for step in chosen)
-        idea_bits.append(f"{_label_from_sentence(role, chosen[0]['sentence'])} {marks}")
-    if idea_bits:
-        bits.append("In the order the records support them, the account then gives " + "; ".join(idea_bits) + ".")
+        marks = "".join(f"[{number}]" for number in dict.fromkeys(cite(step["source"]) for step in chosen))
+        label = _spoken(role) if role == "scope" else _label_from_sentence(role, chosen[0]["sentence"])
+        spoken.append(f"Say {label} next {marks}.")
+    if spoken:
+        bits.append("To talk through the rest, keep that order.")
+        bits.extend(spoken)
+        bits.append("Each of those lines is the next retrieved sentence. The handoff is the order itself.")
     bits.append(
-        "These records do not derive the mathematics, and they do not replace a course. "
+        "Stop there. These records do not derive the mathematics, and they do not replace a course. "
         "They are enough to hand to another person as a first account, and they mark where that account stops."
     )
     return " ".join(bits)

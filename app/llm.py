@@ -55,7 +55,13 @@ def resolve_model(requested: str | None) -> str:
     return chosen
 
 
-def complete(messages: list[dict], model: str, temperature: float = 0.3, tools: list | None = None):
+def complete(
+    messages: list[dict],
+    model: str,
+    temperature: float = 0.3,
+    tools: list | None = None,
+    max_tokens: int | None = None,
+):
     if not model_available():
         raise RuntimeError("No model key is configured.")
     from openai import OpenAI
@@ -70,6 +76,11 @@ def complete(messages: list[dict], model: str, temperature: float = 0.3, tools: 
         "messages": messages,
         "temperature": temperature,
     }
+    # The previous call left length to the provider default, which cut a paper
+    # off before a reader could talk through the ideas. Writers pass a ceiling
+    # large enough for that longer account.
+    if max_tokens:
+        kwargs["max_tokens"] = max_tokens
     if tools:
         kwargs["tools"] = tools
         kwargs["tool_choice"] = "auto"

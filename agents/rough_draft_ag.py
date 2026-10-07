@@ -10,6 +10,9 @@
 # which Agent 3 already uses. They were close: one completion, then json.loads.
 # A fenced JSON reply still breaks a strict load, so fences are stripped
 # before parsing. With no model key, the draft is built from the brief.
+# The first composed draft kept one sentence per idea, which was too short
+# to talk from. The completion now allows a longer paper (max_tokens) and
+# the local writer develops each step with the next sentences in the records.
 
 import research_tools
 from app.compose import TEACHING_STANDARD, first_draft
@@ -49,6 +52,7 @@ Research report:
         ],
         model=model,
         temperature=temperature,
+        max_tokens=4500,
     )
     llm_output = (response.choices[0].message.content or "").strip()
     data = load_json_output(llm_output)

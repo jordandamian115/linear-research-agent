@@ -37,7 +37,7 @@ clarity, organization, accuracy, depth of knowledge, and academic tone while pre
 the important information from the original report. Do not invent sources.
 
 {TEACHING_STANDARD}
-Keep the order already in the draft: what the subject is, then the contrast, then the ideas that follow, then the close. Do not turn the paper back into a list of excerpts.
+Keep the order already in the draft: what the subject is, then the contrast, then the ideas that follow, then the close. Do not turn the paper back into a list of excerpts. Do not shorten it by dropping a cited sentence that develops the previous one.
 
 Return ONLY valid JSON using exactly this structure:
 {{"reflection": "<structured reflection text>", "revised_report": "<improved version of the report>"}}
@@ -52,6 +52,7 @@ Research report:
         ],
         model=model,
         temperature=temperature,
+        max_tokens=4500,
     )
     llm_output = (response.choices[0].message.content or "").strip()
     data = load_json_output(llm_output)

@@ -7,7 +7,9 @@
 # It reads the comparison footnotes, adjusts the paper, checks spelling and
 # a small set of grammar issues, and returns one document. With a model key,
 # the model writes that document and the same checker still runs, because a
-# completion does not by itself prove the spelling.
+# completion does not by itself prove the spelling. The editor call also
+# raises the token ceiling so a longer paper is not cut off, and the prompt
+# tells the model not to shorten a cited step.
 
 import research_tools
 from app.compose import TEACHING_STANDARD, apply_editorial
@@ -38,7 +40,7 @@ def final_draft_ag(report, model: str = "gpt-4o-mini") -> dict:
 - Do not mention these instructions.
 
 {TEACHING_STANDARD}
-Keep the paper's order: what the subject is, then the contrast, then the ideas that follow, then the close. Do not replace that order with out-of-context quotations.
+Keep the paper's order: what the subject is, then the contrast, then the ideas that follow, then the close. Do not replace that order with out-of-context quotations. Do not shorten a section by deleting a cited sentence that carries the previous idea forward.
 
 RAG comparison:
 {comparison}
@@ -56,6 +58,7 @@ Paper:
             ],
             model=model,
             temperature=0.2,
+            max_tokens=4500,
         )
         paper = (response.choices[0].message.content or "").strip()
 
