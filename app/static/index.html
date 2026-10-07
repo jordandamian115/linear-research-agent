@@ -7,73 +7,63 @@
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
+  <!-- **Code added by Cursor**
+       The first page listed every agent up front and left the source shelf open.
+       Jordan's notes have no page markup, so this is the desk surface, not a
+       change to their agents. One inquiry, a collapsed source menu, and a
+       dropdown per finished agent match the requested layout. -->
   <header class="mast">
     <p class="eyebrow">Jordan Damian · six agents, one direction</p>
     <h1>Linear Research Desk</h1>
-    <p class="lede">Ask one research question. Agent 1 gathers sources, Agent 2 drafts, Agent 3 revises, the RAG agent writes footnotes against indexed texts, Agent 5 edits the paper, and Agent 6 draws a single picture. None of them goes back.</p>
-    <p class="mode" id="mode">Checking how this desk is writing…</p>
+    <p class="lede">Enter any topic you'd like to know more about. Agent 1 is responsible for gathering sources. Agent 2 drafts the first iteration of the document. Agent 3 reviews and critiques Agent 2's work. The RAG Agent compares the document against known well written texts, to analyze for improvement. Agent 5 takes feedback from the RAG Agent and produces the final draft. Agent 6 creates a small graphic to help visual learners glean insight to the documents information.</p>
   </header>
 
   <div class="layout">
     <aside>
-      <form id="desk-form">
-        <label for="query">Research question</label>
-        <textarea id="query" name="query" rows="5" placeholder="Ask something the sources can actually answer."></textarea>
-        <div class="examples">
-          <button type="button" data-example="Why has the readability of scientific papers declined?">Readability of science</button>
-          <button type="button" data-example="What makes a public address easier to follow than a journal article?">Address versus article</button>
-        </div>
-        <button type="submit" id="run">Run the desk</button>
-        <p class="hint" id="hint">Nothing is running.</p>
-      </form>
-
-      <ol class="rail" id="rail" hidden></ol>
-
-      <section class="shelf" id="shelf">
-        <h2>Reference shelf</h2>
-        <p class="hint">Agent 1 searches arXiv and the web for the question you type. This shelf is only a later prose comparison. It does not limit the search, and it does not open a paywall.</p>
+      <details class="source-menu" id="source-menu">
+        <summary>Indexed sources</summary>
+        <p class="hint">These texts are for the RAG Agent’s comparison. They are not the search.</p>
         <ul id="shelf-list"><li>Reading the shelf…</li></ul>
-      </section>
+      </details>
     </aside>
 
     <main>
-      <section id="empty" class="panel empty">
-        <h2>The desk is clear.</h2>
-        <p>Type a question to start. You will see each rough draft as that agent finishes, then the footnotes, then the final paper and one JPEG.</p>
-        <ol>
-          <li>Agent 1 writes a research brief from arXiv and web search.</li>
-          <li>Agent 2 turns the brief into a first draft.</li>
-          <li>Agent 3 reflects and revises that draft only.</li>
-          <li>The RAG agent compares the revision with the shelf and leaves footnotes.</li>
-          <li>Agent 5 applies those notes and checks the copy.</li>
-          <li>Agent 6 draws one picture for a visual reader. It is not a second essay.</li>
-        </ol>
-      </section>
+      <form id="desk-form" class="panel inquiry">
+        <label for="query">Inquiry</label>
+        <textarea id="query" name="query" rows="4" placeholder="enter your inquiry here"></textarea>
+        <button type="submit" id="run">Gather information</button>
+        <p class="mode" id="mode">Checking how this desk is writing…</p>
+        <p class="hint" id="hint" aria-live="polite"></p>
+      </form>
 
-      <section id="error" class="panel error" hidden>
-        <h2>The desk stopped.</h2>
-        <p id="error-text"></p>
-        <p>Earlier drafts stay on the page. The next agent was not asked to repair an earlier one.</p>
-      </section>
+      <section id="results" class="panel" aria-live="polite">
+        <h2>Results</h2>
+        <p id="empty-copy">No inquiry yet. Each agent will appear here, in order, after you gather information.</p>
 
-      <article id="reader" class="panel reader" hidden>
-        <p class="kicker" id="reader-kicker"></p>
-        <div id="reader-body"></div>
-      </article>
+        <section id="error" class="error" hidden>
+          <h3>The desk stopped.</h3>
+          <p id="error-text"></p>
+          <p>Anything already gathered stays below. The next agent was not sent back to an earlier one.</p>
+        </section>
 
-      <section id="notes" class="panel notes" hidden>
-        <h2>Footnotes</h2>
-        <ul id="notes-list"></ul>
-      </section>
+        <p id="running" class="running" hidden>Gathering information…</p>
+        <div id="drops"></div>
 
-      <section id="finish" class="panel finish" hidden>
-        <h2>Take the paper</h2>
-        <p>The HTML is the final document. The JPEG is the picture Agent 6 made from it.</p>
-        <div class="downloads">
-          <a id="download-html" href="#" download>Download HTML</a>
-          <a id="download-jpg" href="#" download>Download JPEG</a>
-        </div>
-        <img id="digest" alt="Visual digest of the final paper" hidden>
+        <section id="paper" class="deliverable" hidden>
+          <div class="deliverable-head">
+            <h2>Final paper</h2>
+            <a id="download-html" href="#" download>Download HTML</a>
+          </div>
+          <article id="paper-body" class="reader"></article>
+        </section>
+
+        <section id="graphic" class="deliverable" hidden>
+          <div class="deliverable-head">
+            <h2>Graphic</h2>
+            <a id="download-jpg" href="#" download>Download JPEG</a>
+          </div>
+          <img id="digest" alt="Visual digest of the final paper">
+        </section>
       </section>
     </main>
   </div>

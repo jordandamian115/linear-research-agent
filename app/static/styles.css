@@ -1,3 +1,8 @@
+/* **Code added by Cursor**
+   The first stylesheet kept an open shelf and a step rail beside one reading pane.
+   Jordan left no styles. This file is the layout for a collapsed source menu,
+   per-agent dropdowns, and a paper and graphic that sit apart from those dropdowns. */
+
 :root {
   --ink: #1c1915;
   --muted: #5e564c;
@@ -34,32 +39,37 @@ body {
   margin: 0 0 0.4rem;
 }
 
-h1 {
+h1, h2, h3 {
   font-family: "Liberation Serif", Georgia, serif;
   font-weight: 600;
+}
+
+h1 {
   font-size: clamp(2.2rem, 5vw, 3.6rem);
   line-height: 1.05;
   margin: 0;
 }
 
-.lede { max-width: 42rem; color: var(--muted); font-size: 1.05rem; }
+h2 { font-size: 1.45rem; margin: 0 0 0.5rem; }
+h3 { font-size: 1.1rem; margin: 0 0 0.35rem; }
 
-.mode { font-size: 0.92rem; }
+.lede { max-width: 44rem; color: var(--ink); font-size: 1.05rem; }
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+  grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
   gap: 1.5rem;
   padding-bottom: 4rem;
   align-items: start;
 }
 
-aside, .panel {
+.panel, .source-menu {
   background: var(--card);
   border: 1px solid var(--rule);
   border-radius: 14px;
-  padding: 1rem 1rem 1.2rem;
 }
+
+.inquiry, #results { padding: 1rem 1rem 1.2rem; }
 
 label { display: block; font-weight: 700; margin-bottom: 0.4rem; }
 
@@ -74,90 +84,144 @@ textarea {
   resize: vertical;
 }
 
-textarea:focus, button:focus, a:focus { outline: 2px solid var(--red); outline-offset: 2px; }
+textarea:focus, button:focus, a:focus, summary:focus {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
 
-.examples { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.7rem 0; }
-
-button, .downloads a {
+button, .deliverable-head a {
   border: 0;
   border-radius: 999px;
-  padding: 0.55rem 0.9rem;
+  padding: 0.55rem 0.95rem;
   font: inherit;
   cursor: pointer;
   text-decoration: none;
 }
 
-button[data-example] { background: #efe4d4; color: var(--ink); }
+#run, .deliverable-head a { background: var(--ink); color: #fff; display: inline-block; }
 
-#run, .downloads a { background: var(--ink); color: #fff; }
+#run { margin-top: 0.75rem; }
 
 #run[disabled] { background: #8a8176; cursor: wait; }
 
-.hint { color: var(--muted); font-size: 0.9rem; min-height: 1.3rem; }
+.mode, .hint { color: var(--muted); font-size: 0.9rem; }
 
-.rail { list-style: none; padding: 0; margin: 1rem 0 0; }
+.mode { margin-bottom: 0; }
 
-.rail li {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.7rem;
-  padding: 0.7rem 0;
-  border-top: 1px solid var(--rule);
+.source-menu { padding: 0.2rem 0.85rem; }
+
+.source-menu summary {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0.75rem 0.15rem;
+  list-style: none;
 }
 
-.rail button {
-  background: transparent;
-  color: inherit;
-  border-radius: 10px;
-  text-align: left;
-  padding: 0.2rem;
-  width: 100%;
+.source-menu summary::-webkit-details-marker { display: none; }
+
+.source-menu summary::before {
+  content: "▸";
+  display: inline-block;
+  width: 1.1rem;
+  color: var(--red);
 }
 
-.mark {
-  width: 1.6rem;
-  height: 1.6rem;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 0.75rem;
-  background: #efe4d4;
-  margin-top: 0.15rem;
+.source-menu[open] summary::before { content: "▾"; }
+
+.source-menu ul { padding-left: 1.1rem; margin: 0 0 0.8rem; }
+
+.source-menu li { margin: 0.45rem 0; }
+
+.source-menu a { color: var(--red); }
+
+.status {
+  display: inline-block;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-right: 0.3rem;
 }
 
-.rail li.running .mark { background: var(--red); color: #fff; }
-.rail li.done .mark { background: var(--green); color: #fff; }
-.rail li.waiting { color: var(--muted); }
-.rail li strong { display: block; }
-.rail li span { color: var(--muted); font-size: 0.88rem; }
-
-.shelf { margin-top: 1rem; }
-.shelf h2, .panel h2 { font-family: "Liberation Serif", Georgia, serif; font-size: 1.3rem; margin: 0 0 0.4rem; }
-.shelf ul, .empty ol, .notes ul { padding-left: 1.1rem; }
-.shelf li { margin: 0.45rem 0; }
-.shelf a { color: var(--red); }
-.status { display: inline-block; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; margin-right: 0.3rem; }
 .status.indexed { color: var(--green); }
 .status.partial { color: #8a5a12; }
 .status.unavailable { color: var(--red); }
 
-.reader { font-family: "Liberation Serif", Georgia, serif; }
-.reader h1 { font-size: 2rem; }
-.reader h2 { font-size: 1.25rem; margin-top: 1.4rem; }
-.reader p { font-size: 1.05rem; }
-.kicker { letter-spacing: 0.08em; text-transform: uppercase; font-family: "Liberation Sans", sans-serif; font-size: 0.75rem; color: var(--red); }
+.running {
+  margin: 0.4rem 0 0.8rem;
+  color: var(--red);
+  font-weight: 700;
+}
 
-.error { background: var(--warn); border-color: #e2b8a4; }
+.error {
+  background: var(--warn);
+  border: 1px solid #e2b8a4;
+  border-radius: 10px;
+  padding: 0.8rem 0.9rem;
+  margin: 0.6rem 0 1rem;
+}
 
-.notes li { margin: 0.7rem 0; }
-.notes .who { font-weight: 700; }
+.agent-drop {
+  border-top: 1px solid var(--rule);
+  padding: 0.15rem 0;
+}
 
-.finish img { width: 100%; height: auto; margin-top: 1rem; border-radius: 10px; border: 1px solid var(--rule); }
-.downloads { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.agent-drop summary {
+  cursor: pointer;
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  padding: 0.7rem 0.1rem;
+  font-weight: 700;
+}
+
+.agent-drop summary::-webkit-details-marker { display: none; }
+
+.agent-drop summary::before {
+  content: "▸";
+  color: var(--red);
+}
+
+.agent-drop[open] summary::before { content: "▾"; }
+
+.drop-body { padding: 0 0.2rem 0.9rem 1.4rem; }
+
+.reader, .drop-body { font-family: "Liberation Serif", Georgia, serif; }
+
+.reader h1, .drop-body h1 { font-size: 1.7rem; }
+.reader h2, .drop-body h2 { font-size: 1.2rem; margin-top: 1.2rem; }
+.reader p, .drop-body p { font-size: 1.05rem; }
+
+.deliverable {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 3px solid var(--ink);
+}
+
+.deliverable-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+}
+
+.deliverable-head h2 { margin: 0; }
+
+#graphic { border-top-color: var(--green); }
+
+#digest {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid var(--rule);
+}
 
 main { display: grid; gap: 1rem; }
 
 @media (max-width: 800px) {
   .layout { grid-template-columns: 1fr; }
   .mast { padding-top: 1.4rem; }
+  #run, .deliverable-head a { width: 100%; text-align: center; }
+  .deliverable-head { align-items: stretch; }
 }

@@ -1,40 +1,47 @@
+/* **Code added by Cursor**
+   The first script opened every draft in one pane and offered two example buttons.
+   Jordan's notes do not describe a page. This script reveals one dropdown per
+   finished agent, then the full paper, then the graphic, each with its own download. */
+
 const form = document.querySelector("#desk-form");
 const queryBox = document.querySelector("#query");
 const runButton = document.querySelector("#run");
 const hint = document.querySelector("#hint");
-const rail = document.querySelector("#rail");
-const empty = document.querySelector("#empty");
+const emptyCopy = document.querySelector("#empty-copy");
 const errorBox = document.querySelector("#error");
 const errorText = document.querySelector("#error-text");
-const reader = document.querySelector("#reader");
-const readerKicker = document.querySelector("#reader-kicker");
-const readerBody = document.querySelector("#reader-body");
-const notes = document.querySelector("#notes");
-const notesList = document.querySelector("#notes-list");
-const finish = document.querySelector("#finish");
+const running = document.querySelector("#running");
+const drops = document.querySelector("#drops");
+const paper = document.querySelector("#paper");
+const paperBody = document.querySelector("#paper-body");
+const graphic = document.querySelector("#graphic");
 const digest = document.querySelector("#digest");
 const downloadHtml = document.querySelector("#download-html");
 const downloadJpg = document.querySelector("#download-jpg");
 const mode = document.querySelector("#mode");
 const shelfList = document.querySelector("#shelf-list");
+const sourceMenu = document.querySelector("#source-menu");
 
-const stages = new Map();
+const ORDER = [
+  ["res_ag", "Agent 1", "Everything gathered"],
+  ["rough_draft_ag", "Agent 2", "First draft"],
+  ["revise_draft_ag", "Agent 3", "Review"],
+  ["rag_ag", "RAG Agent", "Footnotes and comparison"],
+  ["final_draft_ag", "Agent 5", "Final draft"],
+  ["graphic_ag", "Agent 6", "Graphic note"],
+];
+
+const stages = new Map(ORDER.map(([id, label, action]) => [id, { label, action, state: "waiting" }]));
 let timer = null;
 let started = 0;
-let selected = "";
 
-document.querySelectorAll("[data-example]").forEach((button) => {
-  button.addEventListener("click", () => {
-    queryBox.value = button.dataset.example;
-    queryBox.focus();
-  });
-});
+sourceMenu.open = false;
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   const query = queryBox.value.trim();
   if (query.length < 8) {
-    showError("Write a research question of at least a few words.");
+    showError("Write an inquiry of at least a few words.");
     return;
   }
   start(query);
@@ -52,29 +59,12 @@ async function loadHealth() {
       ? "Model in use: local composition. Set XAI_API_KEY to turn on Grok, or OPENAI_API_KEY to turn on the OpenAI models named in the notes."
       : `Model in use: ${model}.`;
     const search = data.tavily === "api-key"
-      ? "arXiv and web search run on the question you type."
-      : "arXiv and web search run on the question you type. Web search uses a keyless request, then an empty fallback if that fails.";
+      ? "arXiv and web search run on the inquiry you type."
+      : "arXiv and web search run on the inquiry you type. Web search uses a keyless request, then an empty fallback if that fails.";
     mode.textContent = `${writing} ${search}`;
-    buildRail(data.stages || []);
   } catch (err) {
     mode.textContent = "The desk did not answer a health check.";
   }
-}
-
-function buildRail(items) {
-  rail.innerHTML = "";
-  stages.clear();
-  items.forEach((item, index) => {
-    const li = document.createElement("li");
-    li.className = "waiting";
-    li.dataset.id = item.id;
-    li.innerHTML = `<div class="mark">${index + 1}</div><button type="button"><strong></strong><span></span></button>`;
-    li.querySelector("strong").textContent = item.label;
-    li.querySelector("span").textContent = item.action;
-    li.querySelector("button").addEventListener("click", () => showStage(item.id));
-    rail.appendChild(li);
-    stages.set(item.id, { meta: item, state: "waiting", html: "", footnotes: [], heading: item.label });
-  });
 }
 
 async function loadShelf() {
@@ -93,7 +83,7 @@ async function loadShelf() {
       link.target = "_blank";
       link.rel = "noreferrer";
       link.textContent = doc.title;
-      li.append(status, link);
+      li.append(status, document.createTextNode(" "), link);
       if (doc.reason) {
         const why = document.createElement("div");
         why.className = "hint";
@@ -102,23 +92,26 @@ async function loadShelf() {
       }
       shelfList.append(li);
     });
+    if (!shelfList.children.length) {
+      shelfList.innerHTML = "<li>No indexed sources yet.</li>";
+    }
   } catch (err) {
-    shelfList.innerHTML = "<li>The shelf could not be read. The desk can still take a question.</li>";
+    shelfList.innerHTML = "<li>The shelf could not be read. You can still enter an inquiry.</li>";
   }
 }
 
 async function start(query) {
   clearRun();
   runButton.disabled = true;
-  empty.hidden = true;
+  emptyCopy.hidden = true;
   errorBox.hidden = true;
-  rail.hidden = false;
-  hint.textContent = "Agent 1 is starting.";
+  running.hidden = false;
+  running.textContent = "Gathering information… Agent 1 is working.";
   started = Date.now();
   timer = setInterval(() => {
     const seconds = Math.round((Date.now() - started) / 1000);
     const current = [...stages.values()].find((stage) => stage.state === "running");
-    if (current) hint.textContent = `${current.meta.label} is working · ${seconds}s`;
+    if (current) running.textContent = `${current.label} is working · ${seconds}s`;
   }, 500);
 
   try {
@@ -129,7 +122,8 @@ async function start(query) {
     });
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
-      throw new Error(payload.detail || "The desk rejected the question.");
+      const detail = payload.detail;
+      throw new Error(typeof detail === "string" ? detail : "The desk rejected the inquiry.");
     }
     await readStream(response);
   } catch (err) {
@@ -137,6 +131,7 @@ async function start(query) {
   } finally {
     runButton.disabled = false;
     clearInterval(timer);
+    running.hidden = true;
   }
 }
 
@@ -152,9 +147,9 @@ async function readStream(response) {
     buffer = chunks.pop();
     chunks.forEach(handleEvent);
   }
-    if (buffer.trim()) handleEvent(buffer);
-  if (finish.hidden && errorBox.hidden) {
-    showError("The desk closed the stream before the last agent finished.");
+  if (buffer.trim()) handleEvent(buffer);
+  if (paper.hidden && errorBox.hidden) {
+    showError("The desk closed the stream before the final paper was ready.");
   }
 }
 
@@ -170,95 +165,65 @@ function handleEvent(chunk) {
     hint.textContent = event.composition === "model"
       ? "Finished with a model."
       : "Finished with local composition.";
-    finish.hidden = false;
     return;
   }
   if (event.type !== "step") return;
   const stage = stages.get(event.id);
   if (!stage) return;
   stage.state = event.state;
-  if (event.html) stage.html = event.html;
-  if (event.heading) stage.heading = event.heading;
-  if (event.footnotes) stage.footnotes = event.footnotes;
-  if (event.paper_url) {
-    downloadHtml.href = event.paper_url;
-    finish.hidden = false;
+  if (event.state === "running") {
+    running.hidden = false;
+    running.textContent = `${stage.label} is working.`;
+    return;
   }
+  if (event.state !== "done") return;
+  addDropdown(event.id, stage, event.html || "");
+  if (event.id === "final_draft_ag" && event.html) {
+    paperBody.innerHTML = event.html;
+    paper.hidden = false;
+  }
+  if (event.paper_url) downloadHtml.href = event.paper_url;
   if (event.image) {
     digest.src = event.image;
-    digest.hidden = false;
     downloadJpg.href = event.image;
-    finish.hidden = false;
+    graphic.hidden = false;
   }
-  paintRail();
-  if (event.state === "done") showStage(event.id);
-  renderNotes();
 }
 
-function paintRail() {
-  rail.querySelectorAll("li").forEach((li) => {
-    const stage = stages.get(li.dataset.id);
-    li.className = stage.state;
-    const mark = li.querySelector(".mark");
-    mark.textContent = stage.state === "done" ? "✓" : stage.state === "running" ? "…" : mark.textContent;
-  });
-}
-
-function showStage(id) {
-  const stage = stages.get(id);
-  if (!stage || !stage.html) return;
-  selected = id;
-  reader.hidden = false;
-  readerKicker.textContent = stage.meta.label;
-  readerBody.innerHTML = stage.html;
-  empty.hidden = true;
-}
-
-function renderNotes() {
-  notesList.innerHTML = "";
-  let count = 0;
-  stages.forEach((stage) => {
-    (stage.footnotes || []).forEach((note) => {
-      count += 1;
-      const li = document.createElement("li");
-      const who = document.createElement("div");
-      who.className = "who";
-      who.textContent = `${note.agent || stage.meta.label}${note.criterion ? " · " + note.criterion : ""}`;
-      const copy = document.createElement("div");
-      copy.textContent = note.text || "";
-      li.append(who, copy);
-      notesList.append(li);
-    });
-  });
-  notes.hidden = count === 0;
+function addDropdown(id, stage, html) {
+  const existing = drops.querySelector(`[data-id="${id}"]`);
+  const details = existing || document.createElement("details");
+  details.className = "agent-drop";
+  details.dataset.id = id;
+  details.open = false;
+  const summary = document.createElement("summary");
+  summary.textContent = `${stage.label} · ${stage.action}`;
+  const body = document.createElement("div");
+  body.className = "drop-body";
+  body.innerHTML = html || "<p>This agent finished without a document.</p>";
+  details.replaceChildren(summary, body);
+  if (!existing) drops.append(details);
 }
 
 function showError(message) {
   errorBox.hidden = false;
   errorText.textContent = message;
-  empty.hidden = true;
+  emptyCopy.hidden = true;
+  running.hidden = true;
   hint.textContent = "Stopped.";
 }
 
 function clearRun() {
-  stages.forEach((stage, id) => {
+  stages.forEach((stage) => {
     stage.state = "waiting";
-    stage.html = "";
-    stage.footnotes = [];
-    stage.heading = stage.meta.label;
-    const li = rail.querySelector(`li[data-id="${id}"]`);
-    if (li) {
-      const index = [...stages.keys()].indexOf(id);
-      li.querySelector(".mark").textContent = String(index + 1);
-    }
   });
-  paintRail();
-  reader.hidden = true;
-  readerBody.innerHTML = "";
-  notes.hidden = true;
-  notesList.innerHTML = "";
-  finish.hidden = true;
-  digest.hidden = true;
+  drops.innerHTML = "";
+  paper.hidden = true;
+  paperBody.innerHTML = "";
+  graphic.hidden = true;
   digest.removeAttribute("src");
+  downloadHtml.href = "#";
+  downloadJpg.href = "#";
   errorBox.hidden = true;
+  hint.textContent = "";
 }
