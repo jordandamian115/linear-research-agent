@@ -766,7 +766,7 @@ def _idea_lead(role: str, sentence: str, previous: str) -> str:
             return "With the subject named, the records say how it works."
         return "The next record adds another step in how it works."
     if role == "path":
-        if "formula" in lowered or "math" in lowered:
+        if "formula" in lowered and any(cue in lowered for cue in ("minimum", "math", "equation", "course", "class")):
             return "A reader can stop at the ideas above. The last record says how a class can ask a beginner to hold them."
         return "The last record says how a person can put this account into practice."
     return "The next record continues the account."
@@ -806,9 +806,9 @@ def _label_from_sentence(role: str, sentence: str) -> str:
             return "measurement"
         return "one further idea stated in the record"
     if role == "path":
-        if "formula" in text:
+        if "formula" in text and any(cue in text for cue in ("minimum", "math", "equation", "course", "class")):
             return "a formulation with few formulas"
-        return "a classroom statement of the same ideas"
+        return "how to put the account into practice"
     return _ROLE_JOB.get(role, "the next point")
 
 
@@ -834,6 +834,7 @@ def _sidebar(source: dict, terms: list[str] | None = None) -> bool:
 
 def _prepare(text: str) -> str:
     text = text.replace("**", "").replace("__", "")
+    text = re.sub(r"[\u200b\u200c\u200d\ufeff\u2060]", " ", text)
     text = re.sub(r"\s#+\s*", ". ", text)
     text = re.sub(r"^#+\s*", "", text, flags=re.M)
     text = re.sub(r"skip to main content", " ", text, flags=re.I)
@@ -940,9 +941,11 @@ def _role(sentence: str, terms: list[str] | None = None) -> str | None:
     text = sentence.lower()
     terms = terms or []
     overlap = _query_overlap(sentence, terms) if terms else 0
-    if (
-        re.search(r"\b(schools?|students?|teach|tutorial|formulas?)\b", text) or re.search(r"\b(a|the|this) course\b", text)
-    ) and "programming" not in text and not re.search(r"\bis the (study|science|field|fundamental)\b", text):
+    # "Formula" alone is not a math lesson. A winning formula for a workout
+    # is still about how the subject works.
+    classroom = bool(re.search(r"\b(schools?|students?|teach|tutorial)\b", text) or re.search(r"\b(a|the|this) course\b", text))
+    math_formula = bool(re.search(r"\bformulas?\b", text) and re.search(r"\b(math|equation|course|class|minimum)\b", text))
+    if (classroom or math_formula) and "programming" not in text and not re.search(r"\bis the (study|science|field|fundamental)\b", text):
         return "path"
     if "entangl" in text and any(cue in text for cue in ("two or more", "far apart", "connected", "single system")):
         return "further"
