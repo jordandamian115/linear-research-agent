@@ -1,6 +1,6 @@
-# Linear Research Desk
+# Linear Research Agent
 
-Jordan Damian's agentic research desk. Six agents run once, in order, and do not call back.
+Jordan Damian's agentic research agent. Six agents run once, in order, and do not call back.
 
 The original notes in `Agent1.txt`, `Agent2.txt`, `Agent 3.txt`, `RAG Agent.txt`, `Agent 5.txt`, `Agent 6.txt`, `tools.txt`, `prompt.txt`, and `Planned structure.txt` are unchanged. The running code is the glue around them.
 
@@ -30,7 +30,7 @@ Agent 1 searches arXiv and the web for the question you type. The reference shel
 
 ## CI/CD (continuous integration and development)
 
-Refinements after the first desk, in the order they were made:
+Refinements after the first agent, in the order they were made:
 
 - Live Tavily and arXiv for any topic. Writers stay on local composition until `XAI_API_KEY` (`grok-3-mini`, or `XAI_MODEL`) or `OPENAI_API_KEY` (`gpt-4o` / `gpt-4o-mini`). Grok 4o mini and `gpt-4l-mini` were placeholders, not runnable model ids.
 - UI: their agent intro, placeholder “enter your inquiry here”, one “Gather information” button, collapsed left menu of indexed sources, “Results”, a dropdown per finished agent, then the full paper with Download HTML, then the graphic with Download JPEG.
@@ -38,6 +38,7 @@ Refinements after the first desk, in the order they were made:
 - This pass: longer papers for a conversational overview, and a per-agent README.
 - This pass: any ordinary topic with public records gets a paper. A physics-only sentence filter had dropped “hypertrophy in bodybuilding” after the search returned pages. If the tools return nothing, the page says so.
 - This pass: the graphic is five or six steps from that paper, each a concept and an example, in the paper’s order. It does not draw the agents or the search.
+- This pass: the name a person sees is Linear Research Agent. Leftover “desk” on the page, in errors, and in the build note now says “agent”.
 
 ## Downloads
 
@@ -56,7 +57,7 @@ Gathers sources for the inquiry you typed. It calls `arxiv_search` and `tavily_s
 - Code: `agents/res_ag.py`
 - Tools: `research_tools/arxiv_search.py`, `research_tools/tavily_search.py` (schemas loaded from `tools.txt`)
 - Brief: `app/compose.py` (`research_brief`)
-- On the desk: a dropdown, “Agent 1 / Everything gathered”
+- On the agent: a dropdown, “Agent 1 / Everything gathered”
 
 ## Agent 2
 
@@ -64,7 +65,7 @@ Writes the first academic draft from that brief. The draft starts with what the 
 
 - Code: `agents/rough_draft_ag.py`
 - Local writing: `app/compose.py` (`first_draft`)
-- On the desk: a dropdown, “Agent 2 / First draft”
+- On the agent: a dropdown, “Agent 2 / First draft”
 
 ## Agent 3
 
@@ -72,7 +73,7 @@ Reads the first draft, notes strengths and limits, and revises it. It does not s
 
 - Code: `agents/revise_draft_ag.py`
 - Local revision: `app/compose.py` (`revised_report`)
-- On the desk: a dropdown, “Agent 3 / Review”
+- On the agent: a dropdown, “Agent 3 / Review”
 
 ## RAG Agent
 
@@ -80,7 +81,7 @@ Compares the revised paper with the public texts that could be indexed. It write
 
 - Code: `agents/rag_ag.py`
 - Shelf: `rag/index.py`
-- On the desk: a dropdown, “RAG Agent / Footnotes and comparison”. The indexed sources sit in the collapsed left menu.
+- On the agent: a dropdown, “RAG Agent / Footnotes and comparison”. The indexed sources sit in the collapsed left menu.
 
 ## Agent 5
 
@@ -89,11 +90,11 @@ Applies those footnotes, checks spelling and a few grammar issues, and returns o
 - Code: `agents/final_draft_ag.py`
 - Local edit: `app/compose.py` (`apply_editorial`)
 - HTML: `app/render.py`
-- On the desk: a dropdown, “Agent 5 / Final draft”, then the full paper with Download HTML
+- On the agent: a dropdown, “Agent 5 / Final draft”, then the full paper with Download HTML
 
 ## Agent 6
 
 Draws one JPEG from the finished paper: five or six steps, in that paper’s order. Each step is a concept from the claims and an example already in those words. It does not draw the agents or the search, and it does not talk to the earlier agents.
 
 - Code: `agents/graphic_ag.py`
-- On the desk: a dropdown, “Agent 6 / Graphic note”, then the graphic with Download JPEG
+- On the agent: a dropdown, “Agent 6 / Graphic note”, then the graphic with Download JPEG

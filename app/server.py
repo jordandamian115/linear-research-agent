@@ -3,6 +3,8 @@
 # every draft, the footnotes, and downloads for HTML and JPEG. No server was
 # in the project. This is that desk, and it does not alter the agent files
 # Jordan wrote.
+# The page title a browser shows was still Linear Research Desk. The product
+# name a person sees is Linear Research Agent. The route ids are unchanged.
 
 from __future__ import annotations
 
@@ -27,7 +29,7 @@ ROOT = Path(__file__).resolve().parents[1]
 JOBS = ROOT / "data" / "jobs"
 STATIC = Path(__file__).resolve().parent / "static"
 
-app = FastAPI(title="Linear Research Desk")
+app = FastAPI(title="Linear Research Agent")
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
 
@@ -110,7 +112,7 @@ def digest(job_id: str):
 
 def _job_file(job_id: str, name: str) -> Path:
     if not job_id.isalnum():
-        raise HTTPException(status_code=404, detail="That draft is not on this desk.")
+        raise HTTPException(status_code=404, detail="That draft is not on this agent.")
     path = JOBS / job_id / name
     if not path.exists():
         raise HTTPException(status_code=404, detail="That file is not ready.")

@@ -3,18 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Linear Research Desk</title>
+  <title>Linear Research Agent</title>
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <!-- **Code added by Cursor**
        The first page listed every agent up front and left the source shelf open.
-       Jordan's notes have no page markup, so this is the desk surface, not a
+       Jordan's notes have no page markup, so this is the page surface, not a
        change to their agents. One inquiry, a collapsed source menu, and a
-       dropdown per finished agent match the requested layout. -->
+       dropdown per finished agent match the requested layout. The visible
+       name is Linear Research Agent. The earlier page still said Desk. -->
   <header class="mast">
     <p class="eyebrow">Jordan Damian · six agents, one direction</p>
-    <h1>Linear Research Desk</h1>
+    <h1>Linear Research Agent</h1>
     <p class="lede">Enter any topic you'd like to know more about. Agent 1 is responsible for gathering sources. Agent 2 drafts the first iteration of the document. Agent 3 reviews and critiques Agent 2's work. The RAG Agent compares the document against known well written texts, to analyze for improvement. Agent 5 takes feedback from the RAG Agent and produces the final draft. Agent 6 creates a small graphic to help visual learners glean insight to the documents information.</p>
   </header>
 
@@ -32,7 +33,7 @@
         <label for="query">Inquiry</label>
         <textarea id="query" name="query" rows="4" placeholder="enter your inquiry here"></textarea>
         <button type="submit" id="run">Gather information</button>
-        <p class="mode" id="mode">Checking how this desk is writing…</p>
+        <p class="mode" id="mode">Checking how this agent is writing…</p>
         <p class="hint" id="hint" aria-live="polite"></p>
       </form>
 
@@ -41,7 +42,7 @@
         <p id="empty-copy">No inquiry yet. Each agent will appear here, in order, after you gather information.</p>
 
         <section id="error" class="error" hidden>
-          <h3>The desk stopped.</h3>
+          <h3>The agent stopped.</h3>
           <p id="error-text"></p>
           <p>Anything already gathered stays below. The next agent was not sent back to an earlier one.</p>
         </section>

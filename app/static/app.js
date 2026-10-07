@@ -1,7 +1,8 @@
 /* **Code added by Cursor**
    The first script opened every draft in one pane and offered two example buttons.
    Jordan's notes do not describe a page. This script reveals one dropdown per
-   finished agent, then the full paper, then the graphic, each with its own download. */
+   finished agent, then the full paper, then the graphic, each with its own download.
+   Visible copy said “the desk.” A person should see “the agent.” The form id stays. */
 
 const form = document.querySelector("#desk-form");
 const queryBox = document.querySelector("#query");
@@ -63,7 +64,7 @@ async function loadHealth() {
       : "arXiv and web search run on the inquiry you type. Web search uses a keyless request, then an empty fallback if that fails.";
     mode.textContent = `${writing} ${search}`;
   } catch (err) {
-    mode.textContent = "The desk did not answer a health check.";
+    mode.textContent = "The agent did not answer a health check.";
   }
 }
 
@@ -123,11 +124,11 @@ async function start(query) {
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
       const detail = payload.detail;
-      throw new Error(typeof detail === "string" ? detail : "The desk rejected the inquiry.");
+      throw new Error(typeof detail === "string" ? detail : "The agent rejected the inquiry.");
     }
     await readStream(response);
   } catch (err) {
-    showError(err.message || "The desk stopped.");
+    showError(err.message || "The agent stopped.");
   } finally {
     runButton.disabled = false;
     clearInterval(timer);
@@ -149,7 +150,7 @@ async function readStream(response) {
   }
   if (buffer.trim()) handleEvent(buffer);
   if (paper.hidden && errorBox.hidden) {
-    showError("The desk closed the stream before the final paper was ready.");
+    showError("The agent closed the stream before the final paper was ready.");
   }
 }
 

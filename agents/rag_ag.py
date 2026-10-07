@@ -9,6 +9,8 @@
 # sentence length and piled-modifier runs in the revised paper with the
 # public texts that could actually be indexed. Sources that could not be
 # retrieved are named in the comparison and are not quoted.
+# One footnote said “this desk.” That sentence is shown on the page, so it
+# now says “this agent.”
 
 from __future__ import annotations
 
@@ -123,7 +125,7 @@ def rag_ag(report) -> dict:
                 "criterion": "Specificity of speech",
                 "agent": "RAG Agent",
                 "text": (
-                    "The King Institute page indexed for this desk is a historical article about the speech, not a full transcript. "
+                    "The King Institute page indexed for this agent is a historical article about the speech, not a full transcript. "
                     "Its prose stays concrete: dates, places, and named texts. "
                     f"“{_clip((king.get('exemplars') or [king['text']])[0], 160)}”"
                 ),
