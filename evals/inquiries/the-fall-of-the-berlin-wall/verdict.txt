@@ -1,7 +1,7 @@
 inquiry: the fall of the berlin wall
-verdict: fell through
-stage: writer stitching
-words: 614
+verdict: worked
+stage: none
+words: 1260
 graphic_steps: 6
-opening: The upshot of this course of events was the collapse of the Berlin Wall.
-failure: Two sentences name the collapse and stop, which is a tidbit rather than an overview.
+opening: The fall of the Berlin Wall was the first step towards German reunification.
+failure: none

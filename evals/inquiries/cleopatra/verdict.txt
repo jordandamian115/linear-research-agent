@@ -1,7 +1,7 @@
 inquiry: cleopatra
-verdict: fell through
-stage: writer stitching
-words: 617
+verdict: worked
+stage: none
+words: 1514
 graphic_steps: 6
 opening: Cleopatra VII (69-30 BCE, reign 51-30 BCE) was the last ruler of Egypt before it was annexed as a province of Rome.
-failure: Two sentences name the queen and the dynasty and then stop.
+failure: none

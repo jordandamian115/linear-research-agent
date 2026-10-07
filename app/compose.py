@@ -47,6 +47,20 @@ from __future__ import annotations
 # a later record stays only when it shares a concrete word with that thread.
 # A one-letter misspelling still matches the page ("porche", "ghengis",
 # "wallstree"). The shelf is still not the source of the claims.
+# That subject check was too tight. It kept the anchor sentence and dropped
+# every other record that did not share a rare word with that one sentence,
+# so a real page became a two-sentence tidbit. A record that is about the
+# same subject now stays, and the paper uses more of its sentences, in
+# order, until the overview is long enough to talk through. A one-word
+# stem is still not the whole question. An all-caps experiment name is not
+# the everyday object when another record explains that object. If no
+# retrieved page is about the question, the paper says so and invents nothing.
+# Comparing two long words against the whole excerpt was the wrong repair.
+# A marketplace, a cybersecurity index, and a generative model shared the
+# title and a couple of ordinary words with the page that defines the
+# subject, and they were taught as the same account. Pages whose title is
+# the question stay together. A page that only mentions the question stays
+# when its account matches. A title that is a different subject does not.
 
 TEACHING_STANDARD = """
 Write a basic academic paper someone could hand to another person or turn in for a class.
@@ -192,17 +206,17 @@ def first_draft(report: str) -> str:
 # when a second record, or the next sentence of the same record, actually
 # develops the point. The cap stops the section from becoming a second dump.
 _ROLE_PLAN = (
-    ("definition", 2),
-    ("scope", 2),
-    ("contrast", 2),
+    ("definition", 4),
+    ("scope", 3),
+    ("contrast", 3),
     ("discrete", 2),
-    ("example", 1),
+    ("example", 2),
     ("duality", 2),
     ("knowledge", 2),
     ("uncertainty", 1),
-    ("further", 1),
-    ("works", 4),
-    ("path", 2),
+    ("further", 2),
+    ("works", 8),
+    ("path", 3),
 )
 
 _ROLE_JOB = {
@@ -255,6 +269,8 @@ def _outline(query: str, sources: list[dict]) -> dict:
         for sentence in sentences(text):
             sentence = _polish_excerpt(sentence)
             if sentence.lower() in seen or not _usable(sentence):
+                continue
+            if _other_enterprise(sentence, terms):
                 continue
             role = _role(sentence, terms)
             # A record that already matches the question can explain the next
@@ -383,7 +399,7 @@ def _continuation(sentence: str) -> bool:
     ))
 
 
-def _follows(step: dict, used: set[str], limit: int = 2) -> list[str]:
+def _follows(step: dict, used: set[str], limit: int = 8) -> list[str]:
     """Next explanatory sentences in the same record. Later teaching steps are left for their own place."""
     sequence = step["source"].get("sequence") or []
     anchor = step["sentence"]
@@ -398,8 +414,14 @@ def _follows(step: dict, used: set[str], limit: int = 2) -> list[str]:
         if sentence in used:
             continue
         role = _role(sentence, step["source"].get("terms") or []) if _usable(sentence) else None
-        if role and role != step["role"] and role in later_roles:
-            break
+        # A later teaching sentence stays available for its own step. Do not
+        # stop the record there, or the paper ends after two sentences.
+        if role and role != step["role"] and role in later_roles and sentence in used:
+            continue
+        if _reviewish(sentence):
+            continue
+        if _other_enterprise(sentence, step["source"].get("terms") or []):
+            continue
         if not _usable(sentence) and not _continuation(sentence):
             continue
         if any(cue in sentence.lower() for cue in ("absolute zero", "coldest", "nothing colder")):
@@ -463,6 +485,9 @@ def _distinctive(text: str, terms: list[str]) -> set[str]:
         "disease", "measurement", "measurements", "automatically", "accurately",
         "causing", "solution", "technology", "development", "environmental",
         "useful", "unavailable", "measure", "measures",
+        "cooling", "temperature", "thermal", "energy", "device", "devices",
+        "operating", "models", "generative", "learning", "common",
+        "similar", "smaller", "highly", "access", "security", "electronic",
         "requirement", "requirements", "parameters", "parameter", "assumes",
         "assumption", "assumptions", "proposed", "framework", "approach",
     }
@@ -574,7 +599,19 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
     # the two texts do not share. When two full matches still describe
     # different subjects, keep the thread whose title is the question.
     terms = _query_terms(query)
-    steps = _subject_thread([step for step in steps if _on_question(step, terms)], terms)
+    on_question = [step for step in steps if _on_question(step, terms)]
+    kept = _subject_thread(on_question, terms)
+    kept_urls = {step["source"].get("url") for step in kept}
+    dropped_sources = []
+    dropped_seen: set[str] = set()
+    for step in steps:
+        url = step["source"].get("url") or ""
+        if url in kept_urls or url in dropped_seen:
+            continue
+        dropped_seen.add(url)
+        dropped_sources.append(step["source"])
+    steps = kept
+    no_page = not steps
 
     present = [role for role, _limit in _ROLE_PLAN if group(role)]
 
@@ -585,12 +622,10 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
         return present[index + 1] if index + 1 < len(present) else None
 
     def related(chosen: list[dict]) -> list[dict]:
-        kept: list[dict] = []
-        for step in chosen:
-            if kept and not _shares_subject(kept[-1], step, terms):
-                continue
-            kept.append(step)
-        return kept
+        # The thread already dropped a different subject. Dropping again,
+        # because two on-topic sentences shared no rare word, left two
+        # sentences and called that a paper.
+        return chosen
 
     support: list[str] = []
     opening = related(group("definition") + group("scope"))
@@ -628,14 +663,21 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
             previous = role
         bits.append(_handoff(role, next_role(role)))
         support.append(" ".join(bits))
+    _develop_until(support, steps, used_sentences, cite)
     if not support:
-        support.append(
-            "The search returned records, but none of them stated the subject in a sentence this paper can teach. "
-            "The titles are named under Limits. Nothing was invented to fill the gap."
-        )
+        if no_page:
+            support.append(
+                "The search returned records, but none of them is a page about this subject. "
+                "The titles are named under Limits. Nothing was invented to fill the gap."
+            )
+        else:
+            support.append(
+                "The search returned records, but none of them stated the subject in a sentence this paper can teach. "
+                "The titles are named under Limits. Nothing was invented to fill the gap."
+            )
 
     walk = _reading_path(steps, cite)
-    limits = _limits(outline["aside"], today)
+    limits = _limits(list(outline["aside"]) + dropped_sources, today)
     closer = _closer(steps, cite)
 
     references = []
@@ -654,28 +696,45 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
     else:
         direction = "They say what the subject is, and they stop where the records stop."
 
-    body = [
-        f"# {title}",
-        "",
-        "## Abstract",
-        (
+    if no_page:
+        abstract = (
+            f"This note records the search for {query}. "
+            "The search returned records, but none of them is a page about this subject. "
+            "Nothing was invented to fill the gap."
+        )
+        introduction = [
+            f"The question guiding this paper is: {framed['guide']}",
+            "",
+            "No retrieved title is this subject, so there is no overview to teach. "
+            "The titles are named under Limits.",
+        ]
+    else:
+        abstract = (
             f"{framed['abstract']} "
             "It is written so a reader can talk through the basics: what the subject is, "
             "the core ideas in the order the records support, how each idea leads to the next, "
             "and where the account stops. "
             "A later sentence is used only when it adds that next point. "
             "Claims stay inside the sentences the search returned."
-        ),
+        )
+        introduction = [
+            f"The question guiding this paper is: {framed['guide']}",
+            "",
+            f"The pages move in one direction. {direction} A reader who reaches the close can restate that sequence.",
+            "",
+            "Read the body as a conversation. Begin with what the subject is. "
+            "Use the contrast next, when the records set that account beside an ordinary case. "
+            "Take each later idea only because a retrieved sentence carries the previous one forward. "
+            "Stop where those sentences stop.",
+        ]
+    body = [
+        f"# {title}",
+        "",
+        "## Abstract",
+        abstract,
         "",
         "## Introduction",
-        f"The question guiding this paper is: {framed['guide']}",
-        "",
-        f"The pages move in one direction. {direction} A reader who reaches the close can restate that sequence.",
-        "",
-        "Read the body as a conversation. Begin with what the subject is. "
-        "Use the contrast next, when the records set that account beside an ordinary case. "
-        "Take each later idea only because a retrieved sentence carries the previous one forward. "
-        "Stop where those sentences stop.",
+        *introduction,
         "",
         "## What the records support",
         *_spaced(support),
@@ -882,7 +941,11 @@ def _sidebar(source: dict, terms: list[str] | None = None) -> bool:
     text = (source.get("excerpt") or source.get("summary") or "").lower()
     terms = terms or []
     if "youtube.com" in url or "youtu.be" in url:
-        return True
+        # A transcript that explains the subject is a record. A card wall is not.
+        prepared = _prepare(source.get("excerpt") or source.get("summary") or "")
+        explained = [sentence for sentence in sentences(prepared) if _usable(sentence)]
+        if len(explained) < 2:
+            return True
     if title.startswith("proceedings") or "proceedings of" in title:
         return True
     if "conference" in title and "proceedings" in text:
@@ -906,6 +969,15 @@ def _prepare(text: str) -> str:
     text = re.sub(r"English abstract:\s*", "", text, flags=re.I)
     text = text.replace("(optical)", "")
     text = re.sub(r"\s+:\s*\d+(?:\.\d+)?", "", text)
+    # A transcript marks time in brackets. The mark is not part of the sentence.
+    text = re.sub(r"\[\d+:\d+(?::\d+)?\]", " ", text)
+    text = re.sub(r"###\s*Transcript", " ", text, flags=re.I)
+    # A pasted heading sometimes repeats the name before the sentence.
+    text = re.sub(
+        r"\b((?:[A-Z][a-z]+\s+){1,3}[A-Z][a-z]+)(?:\s+\1)+",
+        r"\1",
+        text,
+    )
     # Snippet cuts ("[...]") are not sentence ends. Keep only the clauses that
     # were already finished, so a cut word is not taught as a definition.
     kept = []
@@ -922,9 +994,20 @@ def _prepare(text: str) -> str:
     return " ".join(" ".join(kept).split())
 
 
+def _reviewish(sentence: str) -> bool:
+    """A product review is not an account of how the subject works."""
+    lowered = sentence.lower()
+    if re.match(r"(i|i'm|i've|i’ve|my)\b", lowered):
+        return True
+    return bool(re.search(
+        r"\b(i love|i mostly|i recommend|i don't recommend|i do not recommend|my phone|this app|the app|app store)\b",
+        lowered,
+    ))
+
+
 def _usable(sentence: str) -> bool:
     words = sentence.split()
-    if not 8 <= len(words) <= 55:
+    if not 8 <= len(words) <= 80:
         return False
     if not sentence[0].isupper():
         return False
@@ -952,9 +1035,13 @@ def _usable(sentence: str) -> bool:
     )):
         return False
     if re.match(
-        r"(This|It|They|These|We|Our|I|Currently|In order|In fact|Data show|Lecture|Sign up|Spend)\b",
+        r"(This|It|They|These|We|Our|I|I'd|I'm|I’ve|My|Currently|In order|In fact|Data show|Lecture|Sign up|Spend|For the most part)\b",
         sentence,
     ):
+        return False
+    if _reviewish(sentence):
+        return False
+    if re.search(r"[\U0001F300-\U0001FAFF\u2600-\u27BF]", sentence):
         return False
     if lowered.startswith("in physics, this means"):
         return False
@@ -1052,8 +1139,36 @@ def _role(sentence: str, terms: list[str] | None = None) -> str | None:
         text,
     ):
         return "definition"
-    if any(cue in text for cue in ("unlike ", "whereas", "rather than", "compared with", "in contrast", "difference between")):
+    # "The Silk Road is neither a road" states what the subject is. The
+    # pattern above required "is a" or "is the", so that sentence was not
+    # a definition and a later "the term is a name" sentence led instead.
+    if (
+        terms
+        and overlap >= 1
+        and not re.match(r"(the term|the name|the word|the phrase|there)\b", text)
+        and re.match(rf"^(?:the |a |an )?(?:{'|'.join(re.escape(term) for term in terms)})\b", text)
+        and re.search(r"\b(is|are|was|were)\b", text)
+    ):
+        return "definition"
+    # "A compass works" and "line up the needle" say what the instrument is.
+    # The cues are the same ones that separate an everyday object from an
+    # all-caps experiment. They are not a list of topics.
+    if overlap >= 1 and any(cue in text for cue in ("needle", "magnetic north", "magnetized")) and re.search(
+        r"\b(is|are|was|were|have|has|works|show|shows|line up|point)\b", text
+    ):
+        return "definition"
+    if (
+        terms
+        and overlap >= 1
+        and re.match(rf"^(?:the |a |an )?(?:{'|'.join(re.escape(term) for term in terms)})\b", text)
+        and re.search(r"\b(works|navigate|navigation)\b", text)
+    ):
+        return "definition"
+    if any(cue in text for cue in ("unlike ", "whereas", "compared with", "in contrast", "difference between")):
         return "contrast"
+    # "rather than" in the middle of a product aside is not the contrast the
+    # paper is built on. A contrast still counts when the sentence is about
+    # the subject, or when it uses the stronger contrast words above.
     if overlap >= 1 and "however," in text:
         return "contrast"
     if overlap >= 1 and re.search(r"\b(is|are) (a |an )?(different|distinct)\b", text):
@@ -1103,6 +1218,21 @@ def _quality(sentence: str, terms: list[str], role: str) -> int:
         score += 4
     if lowered.startswith("for example"):
         score -= 5
+    if re.match(r"^(the term|the name|the word|the phrase)\b", lowered):
+        score -= 6
+    if re.search(r"\bsubject of\b", lowered) and re.search(r"\b(play|film|movie|novel|memoir)\b", lowered):
+        score -= 6
+    if re.search(r"\b(comes from|latinized|etymolog|adopted title|meaning|means)\b", lowered) and re.search(
+        r"\b(name|word|title|greek|latin)\b", lowered
+    ):
+        score -= 8
+    if terms and re.match(
+        rf"^(?:the |a |an )?(?:{'|'.join(re.escape(term) for term in terms)})\b",
+        lowered,
+    ):
+        score += 3
+    if any(cue in lowered for cue in ("needle", "magnetic north", "magnetized")):
+        score += 2
     if lowered.startswith("quantum"):
         score += 2
     families = 0
@@ -1126,6 +1256,7 @@ def _quality(sentence: str, terms: list[str], role: str) -> int:
 def _finish(sentence: str) -> str:
     cleaned = _polish_excerpt(sentence).strip()
     cleaned = re.sub(r"^(However|Moreover|Therefore),\s+", "", cleaned)
+    cleaned = re.sub(r"\s+\d{1,2}(?=[.!?]?$)", "", cleaned)
     if cleaned and cleaned[0].islower():
         cleaned = cleaned[0].upper() + cleaned[1:]
     if cleaned and cleaned[-1] not in ".!?":
@@ -1173,21 +1304,377 @@ def _seed_rank(step: dict, terms: list[str]) -> tuple[int, int, int]:
     return (teach, hits, extra)
 
 
-def _subject_thread(steps: list[dict], terms: list[str]) -> list[dict]:
-    """Keep one subject.
+def _excerpt(step: dict) -> str:
+    source = step["source"]
+    return f"{source.get('excerpt') or source.get('summary') or ''} {step['sentence']}"
 
-    A marketplace named Silk Road and the historical road both contain the
-    question, and so do a biography and a grant that uses the same name.
-    The sentence that says what the subject is anchors the paper. Later
-    records stay only when they share a concrete word with that thread.
+
+def _page_about(source: dict, terms: list[str]) -> bool:
+    """True when the page's title is the question, not a passing phrase."""
+    if not terms:
+        return True
+    needed = len(terms) if len(terms) >= 2 else 1
+    return _query_overlap(source.get("title") or "", terms) >= needed
+
+
+def _named_experiment(source: dict, terms: list[str]) -> bool:
+    """An all-caps experiment that only shares the ordinary word.
+
+    COMPASS the detector is not a compass. The query was not typed in
+    capitals, and the page is about a beam and a detector. This is not a
+    list of topics.
     """
-    if len(steps) < 2:
+    title = source.get("title") or ""
+    text = f"{title} {source.get('excerpt') or source.get('summary') or ''}".lower()
+    if not any(cue in text for cue in ("detector", "beam", "scattering", "collider", "muon", "hadron")):
+        return False
+    for term in terms:
+        if len(term) < 5:
+            continue
+        if re.search(rf"\b{re.escape(term.upper())}\b", title):
+            return True
+    return False
+
+
+def _everyday_instrument(source: dict) -> bool:
+    text = f"{source.get('title', '')} {source.get('excerpt') or source.get('summary') or ''}".lower()
+    return any(cue in text for cue in ("needle", "magnetic north", "bearing", "navigate", "navigation"))
+
+
+def _without_named_experiments(steps: list[dict], terms: list[str]) -> list[dict]:
+    experiments = [step for step in steps if _named_experiment(step["source"], terms)]
+    if not experiments:
         return steps
-    seed = max(steps, key=lambda step: _seed_rank(step, terms))
-    # Compare every record with the anchor, not with a chain of neighbors.
-    # A chain let an allocation model ride along with a page that says how
-    # a vaccine works, because each pair shared some ordinary word.
-    return [step for step in steps if step is seed or _shares_subject(seed, step, terms)]
+    everyday = [
+        step for step in steps
+        if step not in experiments and _everyday_instrument(step["source"])
+    ]
+    if not everyday:
+        return steps
+    return [step for step in steps if step not in experiments]
+
+
+def _same_account(left: str, right: str, terms: list[str]) -> bool:
+    return len(_distinctive(left, terms) & _distinctive(right, terms)) >= 2
+
+
+_TITLE_CHROME = {
+    "wikipedia", "britannica", "biography", "biographies", "facts", "fact",
+    "history", "guide", "encyclopedia", "definition", "definitions",
+    "example", "examples", "overview", "introduction", "timeline",
+    "article", "quotes", "quote", "nobelprize", "bitesize",
+}
+
+
+def _title_segments(title: str) -> list[str]:
+    return [part.strip() for part in re.split(r"\s+[|\-:–—]\s+|\s*:\s+", title) if part.strip()]
+
+
+def _title_extras(segment: str, terms: list[str]) -> list[str]:
+    extras = []
+    for word in _content_words(segment):
+        if any(_term_in(word, term) for term in terms):
+            continue
+        if word in _TITLE_CHROME:
+            continue
+        extras.append(word)
+    return extras
+
+
+def _query_is_setting(title: str, terms: list[str]) -> bool:
+    """True when the question is only the setting of a different title.
+
+    "After the fall of the Berlin Wall" and "along the Silk Road" name a
+    time or a place. The page is about the words that come before that.
+    """
+    lowered = title.lower()
+    positions = []
+    for term in terms:
+        match = re.search(rf"\b{re.escape(term)}(?:es|s)?\b", lowered)
+        if match:
+            positions.append(match.start())
+    if not positions:
+        return False
+    before = lowered[: min(positions)]
+    marker = re.search(
+        r"\b(after|along|during|following|since|via|within|amid|amidst)\b(?:\s+\w+){0,3}\s*$",
+        before,
+    )
+    if not marker:
+        return False
+    prior = [
+        word for word in _content_words(before[: marker.start()])
+        if not any(_term_in(word, term) for term in terms)
+    ]
+    return bool(prior)
+
+
+def _title_relation(title: str, terms: list[str]) -> str:
+    """subject when the title is the question, mention when it only uses the name.
+
+    A colon subtitle that never says the question is a different page that
+    borrowed the name ("Traveling the Silk Road: ... online marketplace").
+    """
+    if not terms:
+        return "subject"
+    needed = len(terms) if len(terms) >= 2 else 1
+    if _query_overlap(title, terms) < needed:
+        return "other"
+    if _query_is_setting(title, terms):
+        return "mention"
+    segments = _title_segments(title) or [title]
+    query_segment = False
+    foreign = False
+    for segment in segments:
+        extras = _title_extras(segment, terms)
+        if _query_overlap(segment, terms) >= needed and not extras:
+            query_segment = True
+        if _query_overlap(segment, terms) == 0 and len(_content_words(segment)) >= 4:
+            foreign = True
+    if query_segment:
+        return "subject"
+    if foreign:
+        return "other"
+    return "mention"
+
+
+def _subject_sentences(source: dict, terms: list[str]) -> list[str]:
+    text = _prepare(source.get("excerpt") or source.get("summary") or "")
+    found = []
+    for sentence in sentences(text):
+        if _query_overlap(sentence, terms) >= 1:
+            found.append(sentence)
+    return found
+
+
+def _definition_words(source: dict, terms: list[str]) -> set[str]:
+    """Distinctive words from the sentences that say what the subject is."""
+    text = _prepare(source.get("excerpt") or source.get("summary") or "")
+    parts = []
+    for sentence in sentences(text):
+        if _query_overlap(sentence, terms) < 1:
+            continue
+        if re.search(r"\b(is|are|was|were|refers|process|movement|concentration|works)\b", sentence, re.I):
+            parts.append(sentence)
+    return _distinctive(" ".join(parts), terms)
+
+
+def _other_enterprise(sentence: str, terms: list[str]) -> bool:
+    """A second sense that only borrows the name.
+
+    A chemistry page can also define a generative model in a later section.
+    That section is not how the first subject works. The check looks at the
+    kind of enterprise, and it does not run when the question is that enterprise.
+    """
+    lowered = sentence.lower()
+    query = " ".join(terms)
+    for needle in ("machine learning", "generative model", "robot learning"):
+        if needle in lowered and needle not in query:
+            return True
+    return False
+
+
+def _proposal(source: dict) -> bool:
+    text = f"{source.get('title', '')} {source.get('excerpt') or source.get('summary') or ''}".lower()
+    return bool(re.search(
+        r"\b(we propose|we introduce|we present|this paper proposes|we perform a)\b",
+        text,
+    ))
+
+
+def _pure_segment(title: str, terms: list[str]) -> bool:
+    """True when some part of the title is the question and nothing else."""
+    needed = len(terms) if len(terms) >= 2 else 1
+    for segment in _title_segments(title) or [title]:
+        if _query_overlap(segment, terms) >= needed and not _title_extras(segment, terms):
+            return True
+    return False
+
+
+def _accounts_match(
+    left: str,
+    right: str,
+    blobs: dict[str, set[str]],
+    counts: dict[str, int],
+    relation: dict[str, str],
+    terms: list[str],
+    titles: dict[str, str],
+    defined: dict[str, set[str]] | None = None,
+) -> bool:
+    """Two records are one subject when the account overlaps, not when the title does.
+
+    Sharing the title was not enough: a marketplace, a cybersecurity index,
+    and a generative model used the same name. Sharing two words of a long
+    excerpt was not enough either. A long explanation may join on two words.
+    A passing mention may not. Two pages titled with the same multi-word
+    name still belong together when one excerpt is the work and another is
+    the later memorial.
+    """
+    shared = len(blobs[left] & blobs[right])
+    if shared >= 4:
+        return True
+    if relation[left] == relation[right] == "subject" and shared >= 3:
+        return True
+    if relation[left] == relation[right] == "subject" and shared >= 2 and len(terms) >= 2:
+        return True
+    if (
+        relation[left] == relation[right] == "subject"
+        and len(terms) >= 2
+        and _pure_segment(titles.get(left, ""), terms)
+        and _pure_segment(titles.get(right, ""), terms)
+    ):
+        return True
+    defined = defined or {}
+    kinds = {relation[left], relation[right]}
+    if kinds == {"mention", "subject"} and counts[left] >= 3 and counts[right] >= 3:
+        mention = left if relation[left] == "mention" else right
+        subject = right if mention == left else left
+        # The mention has to share the definition, not a later aside on the page.
+        if len(blobs[mention] & defined.get(subject, set())) >= 2:
+            return True
+    # A long how-it-works page can join the page that is titled as the
+    # subject on two concrete words. A one-sentence mention cannot.
+    if shared >= 2 and counts[left] >= 5 and counts[right] >= 5 and kinds == {"subject", "other"}:
+        return True
+    if (
+        shared >= 2
+        and counts[left] >= 5
+        and counts[right] >= 5
+        and kinds == {"other"}
+    ):
+        return True
+    return False
+
+
+def _subject_thread(steps: list[dict], terms: list[str]) -> list[dict]:
+    """Keep every record that is the same subject, and no other.
+
+    Pages that tell the same account stay, including pages that do not
+    share a rare word with one anchor sentence. A page that only borrows
+    the name stays out. If the records never gather into one account,
+    nothing is taught and nothing is invented.
+    """
+    steps = _without_named_experiments(steps, terms)
+    if not steps:
+        return []
+    sources: list[dict] = []
+    seen: set[str] = set()
+    for step in steps:
+        url = step["source"].get("url") or ""
+        if not url or url in seen:
+            continue
+        seen.add(url)
+        sources.append(step["source"])
+    relation = {
+        (source.get("url") or ""): _title_relation(source.get("title") or "", terms)
+        for source in sources
+    }
+    blobs = {
+        (source.get("url") or ""): _distinctive(" ".join(_subject_sentences(source, terms)), terms)
+        for source in sources
+    }
+    counts = {
+        (source.get("url") or ""): len(_subject_sentences(source, terms))
+        for source in sources
+    }
+    urls = [source.get("url") or "" for source in sources]
+    titles = {(source.get("url") or ""): source.get("title") or "" for source in sources}
+    defined = {(source.get("url") or ""): _definition_words(source, terms) for source in sources}
+    parent = {url: url for url in urls}
+
+    def find(url: str) -> str:
+        while parent[url] != url:
+            parent[url] = parent[parent[url]]
+            url = parent[url]
+        return url
+
+    def union(left: str, right: str) -> None:
+        left, right = find(left), find(right)
+        if left != right:
+            parent[right] = left
+
+    for index, left in enumerate(urls):
+        if _proposal_url(sources, left):
+            continue
+        for right in urls[index + 1:]:
+            if _proposal_url(sources, right):
+                continue
+            if _accounts_match(left, right, blobs, counts, relation, terms, titles, defined):
+                union(left, right)
+    groups: dict[str, list[str]] = {}
+    for url in urls:
+        if _proposal_url(sources, url):
+            continue
+        groups.setdefault(find(url), []).append(url)
+    ranked = []
+    any_subject = any(relation[url] == "subject" for url in urls)
+    for members in groups.values():
+        has_subject = any(relation[url] == "subject" for url in members)
+        if any_subject and not has_subject:
+            continue
+        if len(members) < 2 and not has_subject:
+            continue
+        ranked.append((len(members), sum(counts[url] for url in members), members))
+    if not ranked:
+        return []
+    ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    kept = set(ranked[0][2])
+    return [step for step in steps if (step["source"].get("url") or "") in kept]
+
+
+def _proposal_url(sources: list[dict], url: str) -> bool:
+    for source in sources:
+        if (source.get("url") or "") == url:
+            return _proposal(source)
+    return False
+
+
+def _develop_until(support: list[str], steps: list[dict], used: set[str], cite) -> None:
+    """Use the rest of each on-topic record, in order, until the overview is long enough.
+
+    Two sentences from a long page are a tidbit. The sentences already in
+    the records are used in turn. Nothing is written that a record did not say.
+    """
+    if not steps:
+        return
+    target = 1050
+
+    def length() -> int:
+        return sum(len(part.split()) for part in support)
+
+    pools: list[tuple[dict, list[str]]] = []
+    seen_urls: set[str] = set()
+    for step in steps:
+        url = step["source"].get("url")
+        if url in seen_urls:
+            continue
+        seen_urls.add(url)
+        extras = []
+        for sentence in step["source"].get("sequence") or []:
+            if sentence in used or _reviewish(sentence):
+                continue
+            if _other_enterprise(sentence, step["source"].get("terms") or []):
+                continue
+            if not _usable(sentence) and not _continuation(sentence):
+                continue
+            extras.append(sentence)
+        if extras:
+            pools.append((step, extras))
+    while length() < target:
+        progressed = False
+        for step, extras in pools:
+            if not extras or length() >= target:
+                continue
+            sentence = extras.pop(0)
+            if sentence in used:
+                continue
+            used.add(sentence)
+            support.append(
+                f"The same record continues: {_finish(sentence)} [{cite(step['source'])}]"
+            )
+            progressed = True
+        if not progressed:
+            return
 
 
 def _shares_subject(previous: dict, step: dict, terms: list[str]) -> bool:
@@ -1241,7 +1728,7 @@ def _query_terms(query: str) -> list[str]:
         "over", "same", "some", "such", "than", "only", "other", "more",
         "most", "also", "just", "under", "through", "during", "being",
         "before", "after", "again", "because", "between", "while", "using",
-        "used",
+        "used", "work", "works",
     }
     return [
         word.lower()
@@ -1327,6 +1814,11 @@ def _query_overlap(text: str, terms: list[str]) -> int:
 
 def _term_in(text: str, term: str) -> bool:
     if re.search(rf"\b{re.escape(term)}\b", text):
+        return True
+    # "roads" meets "road", "compasses" meets "compass". The plural is the
+    # same word. This is not the eight-letter stem that turned
+    # "revolutionary" into "revolution".
+    if re.search(rf"\b{re.escape(term)}(?:es|s)\b", text):
         return True
     # "works" meets "work". A trailing s is an ending, not a different subject.
     if len(term) >= 5 and term.endswith("s") and re.search(rf"\b{re.escape(term[:-1])}\b", text):

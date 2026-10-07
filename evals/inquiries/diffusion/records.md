@@ -16,11 +16,11 @@ Tavily page: Diffusion | Environmental Sciences | Research Starters | EBSCOhost 
 
 Tavily page: Diffusion - Wikipedia — https://en.wikipedia.org/wiki/Diffusion
 
-Tavily page: 2.13: Diffusion - Biology LibreTexts — https://bio.libretexts.org/Bookshelves/Introductory_and_General_Biology/Introductory_Biology_(CK-12)/02%3A_Cell_Biology/2.13%3A_Diffusion
+Tavily page: What Is Diffusion? — https://www.comsol.com/multiphysics/what-is-diffusion
 
 Tavily page: What is the process of diffusion? - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/znqbcj6
 
-Tavily page: Diffusion | Definition, Quantification, & Examples | Britannica — https://www.britannica.com/science/diffusion
+Tavily page: Diffusion - Simple - Facilitated - TeachMePhysiology — https://teachmephysiology.com/biochemistry/molecules-and-signalling/diffusion
 
 ## Sources
 
@@ -73,26 +73,26 @@ Date: date not listed
 URL: https://en.wikipedia.org/wiki/Diffusion
 Excerpt: In chemistry and materials science, diffusion also refers to the movement of fluid molecules in porous solids. Different types of diffusion are distinguished in porous solids. Molecular diffusion occurs when the collision with another molecule is more likely than the collision with the pore walls. Under such conditions, the diffusivity is similar to that in a non-confined space and is proportional to the mean free path. Knudsen diffusion occurs when the pore diameter is comparable to or smaller [...] In machine learning and artificial intelligence, diffusion models, also known as diffusion-based generative models or score-based generative models, are a class of latent variable generative models. The goal of diffusion models is to learn a diffusion process for a given dataset, such that the process can generate new elements that are distributed similarly as the original dataset. Diffusion models were introduced in 2015 as a method to train a model that can sample from a highly complex [...] The concept of diffusion is widely used in many fields, including physics (particle diffusion), chemistry, biology, sociology, economics, statistics, data science, and finance (diffusion of people, ideas, data and price values). The central idea of diffusion, however, is common to all of these: a substance or collection undergoing diffusion spreads out from a point or location at which there is a higher concentration of that substance or collection.
 
-[8] 2.13: Diffusion - Biology LibreTexts
+[8] What Is Diffusion?
 Type: Tavily
 Authors: Author not listed
 Date: date not listed
-URL: https://bio.libretexts.org/Bookshelves/Introductory_and_General_Biology/Introductory_Biology_(CK-12)/02%3A_Cell_Biology/2.13%3A_Diffusion
-Excerpt: Diffusion is the movement of molecules from an area of high concentration of the molecules to an area with a lower concentration. The difference in the concentrations of the molecules in the two areas is called the concentration gradient. Diffusion will continue until this gradient has been eliminated. Since diffusion moves materials from an area of higher concentration to the lower, it is described as moving solutes "down the concentration gradient." The end result of diffusion is an equal [...] is an equal concentration, or equilibrium, of molecules on both sides of the membrane.
+URL: https://www.comsol.com/multiphysics/what-is-diffusion
+Excerpt: Diffusion is a mass transfer phenomenon that causes the distribution of a chemical species to become more uniform in space as time passes. [...] The driving force for diffusion is the thermal motion of molecules. At temperatures above absolute zero, molecules are never at rest. Their kinetic energy means that they are always in motion, and when molecules collide with each other frequently, the direction of the motion becomes randomized. In most cases, these collisions are common; even in air at atmospheric pressure, which hardly seems a "dense" fluid, each molecule collides with a neighbor every few nanoseconds. [...] In this case, mass moves from left to right so that the concentration becomes globally more uniform. Because diffusion drives a net flux of material from regions of high concentration to low concentration, we often speak of diffusion as acting "down a concentration gradient". Once the concentration has become uniform, the molecules are all still in motion in different, random directions. However, there are now the same number of molecules moving across the boundary in either direction:
 
 [9] What is the process of diffusion? - BBC Bitesize
 Type: Tavily
 Authors: Author not listed
 Date: date not listed
 URL: https://www.bbc.co.uk/bitesize/articles/znqbcj6
-Excerpt: Diffusion is the process by which particles of one substance spread out through the particles of another substance. Diffusion is how smells spread out through the air and how concentrated liquids spread out when placed in water. [...] Diffusion is essential to the coffee-making process. Diffusion is the movement of a gas or liquid from an area of high concentration to an area of low concentration. [...] Diffusion happens on its own when the particles spread out from an area of high concentrationcloseconcentrationThe number of particles of one substance in a specific volume of another substance., where there are many of them, to areas of low concentration where there are fewer of them. A sign which says 'remember'
+Excerpt: Diffusion is the process by which particles of one substance spread out through the particles of another substance. Diffusion is how smells spread out through the air and how concentrated liquids spread out when placed in water. [...] Diffusion is essential to the coffee-making process. Diffusion is the movement of a gas or liquid from an area of high concentration to an area of low concentration.
 
-[10] Diffusion | Definition, Quantification, & Examples | Britannica
+[10] Diffusion - Simple - Facilitated - TeachMePhysiology
 Type: Tavily
 Authors: Author not listed
 Date: date not listed
-URL: https://www.britannica.com/science/diffusion
-Excerpt: A. The physical process in which a substance tends to spread steadily from regions of high concentration to regions of lower concentration is called diffusion. Diffusion can therefore be considered a macroscopic manifestation of Brownian motion on the microscopic level. Thus, it is possible to study diffusion by simulating the motion of a Brownian particle and computing its average behaviour. A few examples of the countless diffusion processes that are studied in terms of Brownian motion [...] diffusion, process resulting from random motion of molecules by which there is a net flow of matter from a region of high concentration to a region of low concentration. A familiar example is the perfume of a flower that quickly permeates the still air of a room. Because of the higher kinetic energy of gas molecules and the large spaces between them, diffusion occurs faster in gases than in liquids and solids. ## Quantifying diffusion [...] Diffusion is the process resulting from random motion of molecules, leading to a net flow of matter from a region of high concentration to a region of low concentration. ### Why does diffusion occur faster in gases than in liquids and solids? Diffusion occurs faster in gases than in liquids and solids because of the higher kinetic energy of gas molecules and the large spaces between them. ### What is Fick’s first law of diffusion?
+URL: https://teachmephysiology.com/biochemistry/molecules-and-signalling/diffusion
+Excerpt: #### You've Discovered a Pro Feature #### Access our 3D Model Library Explore, cut, dissect, annotate and manipulate our 3D models to visualise anatomy in a dynamic, interactive way. ## Mechanism of Diffusion Diffusion is the movement of a molecule down a concentration gradient, from an area of its high concentration to an area of its low concentration. This process is passive, i.e. it requires no input of additional energy; the concentration gradient alone is enough to drive the process. [...] ##### Diffusion Question 1 of 3 ##### You scored #### More Questions Available #### Upgrade to TeachMePhysiology Pro Challenge yourself with over 2100 multiple-choice questions to reinforce learning ### Frequent questions Diffusion is the passive movement of molecules from an area of high concentration to one of low concentration across cell membranes. This process does not require energy input, as it relies solely on the concentration gradient.
 
 ## Reading notes
 [1] The retrieved text says: Jump frequencies of 111In/Cd tracer atoms were measured for a series of layered phases LanCoIn3n+2 using the technique of perturbed angular correlation of gamma rays (PAC). The frequencies were determined by analysis of nuclear quadrupole relaxation produced by fluctuating electric field gradients.
@@ -102,9 +102,9 @@ Excerpt: A. The physical process in which a substance tends to spread steadily f
 [5] The retrieved text says: We propose a new class of generative diffusion models, called functional diffusion. In contrast to previous work, functional diffusion works on samples that are represented by functions with a continuous domain.
 [6] The retrieved text says: Diffusion is a concept describing the process by which a substance moves from an area of high concentration to an area of lower concentration. It is most commonly discussed in physics and chemistry to explain the natural motion of liquids and gases, for example how molecules flow within cells or how the scent of flowers spreads throughout a room.
 [7] The retrieved text says: In chemistry and materials science, diffusion also refers to the movement of fluid molecules in porous solids. Different types of diffusion are distinguished in porous solids.
-[8] The retrieved text says: Diffusion is the movement of molecules from an area of high concentration of the molecules to an area with a lower concentration. The difference in the concentrations of the molecules in the two areas is called the concentration gradient.
+[8] The retrieved text says: Diffusion is a mass transfer phenomenon that causes the distribution of a chemical species to become more uniform in space as time passes. [...] The driving force for diffusion is the thermal motion of molecules.
 [9] The retrieved text says: Diffusion is the process by which particles of one substance spread out through the particles of another substance. Diffusion is how smells spread out through the air and how concentrated liquids spread out when placed in water.
-[10] The retrieved text says: The physical process in which a substance tends to spread steadily from regions of high concentration to regions of lower concentration is called diffusion. Diffusion can therefore be considered a macroscopic manifestation of Brownian motion on the microscopic level.
+[10] The retrieved text says: #### You've Discovered a Pro Feature #### Access our 3D Model Library Explore, cut, dissect, annotate and manipulate our 3D models to visualise anatomy in a dynamic, interactive way. ## Mechanism of Diffusion Diffusion is the movement of a molecule down a concentration gradient, from an area of its high concentration to an area of its low concentration.
 
 ## Fallthrough
 These notes stay inside the excerpts. They do not describe methods, samples, or results that the excerpts omit.

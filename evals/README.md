@@ -23,7 +23,7 @@ No RAG document was removed. The shelf text does not enter the claims. In the pa
 
 ## Results
 
-17 worked. 8 fell through.
+24 worked. 1 fell through. The eight that had fallen through were rerun after the writer was changed to keep every record that is about the subject and to write the overview from those sentences. A page that only borrows the name stays out. “the revolutionary way” still has no page about one subject.
 
 | Inquiry | Result | Words | Failure |
 | --- | --- | --- | --- |
@@ -31,26 +31,26 @@ No RAG document was removed. The shelf text does not enter the claims. In the pa
 | quantum physics | worked | 952 | |
 | quantum computing | worked | 960 | |
 | the revolutionary war | worked | 764 | |
-| the revolutionary way | fell through | 759 | Search relevance. The only record that contains both words is a 3D-printing poster, so the paper is not an overview of one subject. |
+| the revolutionary way | fell through | 304 | Search relevance. No retrieved title is a page about this subject, so the paper does not invent one. |
 | ghengis khan | worked | 705 | |
 | sun tzu | worked | 942 | |
 | the wolf of wallstree | worked | 707 | |
 | stock market | worked | 581 | |
 | porche | worked | 551 | |
 | the boston tea party | worked | 586 | |
-| the silk road | fell through | 540 | Writer stitching. The paper stops after two sentences about the maritime name and does not tell how the route worked. |
-| the fall of the berlin wall | fell through | 614 | Writer stitching. Two sentences name the collapse and stop, which is a tidbit rather than an overview. |
-| cleopatra | fell through | 617 | Writer stitching. Two sentences name the queen and the dynasty and then stop. |
+| the silk road | worked | 1622 | |
+| the fall of the berlin wall | worked | 1260 | |
+| cleopatra | worked | 1514 | |
 | ada lovelace | worked | 592 | |
-| marie curie | fell through | 535 | Writer stitching. Three sentences praise her and do not say what she discovered or how the work proceeded. |
+| marie curie | worked | 1276 | |
 | the printing press | worked | 649 | |
-| a compass | fell through | 620 | Search relevance. The claims describe a particle-physics apparatus named COMPASS, not how a magnetic compass works. |
+| a compass | worked | 1099 | |
 | the telescope | worked | 661 | |
 | how a refrigerator works | worked | 549 | |
 | how vaccines work | worked | 897 | |
-| how a lock and key works | fell through | 548 | Writer stitching. Only two sentences survived, so the paper is a tidbit and does not walk through how a lock works. |
+| how a lock and key works | worked | 977 | |
 | transformer | worked | 711 | |
-| diffusion | fell through | 462 | Writer stitching. The paper is a short tidbit (462 words), not an overview a person could talk through. |
+| diffusion | worked | 917 | |
 | entropy | worked | 593 | |
 
 Rerun with `PYTHONPATH=/workspace python3 evals/run.py` from the repo root. Pass inquiry strings to rerun a subset.

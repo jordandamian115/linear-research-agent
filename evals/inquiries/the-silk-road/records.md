@@ -18,9 +18,9 @@ Tavily page: Silk Road - Wikipedia — https://en.wikipedia.org/wiki/Silk_Road
 
 Tavily page: Silk Road Travel Guide — https://www.advantour.com/silkroad
 
-Tavily page: About the Silk Roads | UNESCO — https://www.unesco.org/en/silk-roads/about-silk-roads
+Tavily page: Silk Road | Facts, History, & Map | Britannica — https://www.britannica.com/topic/Silk-Road-trade-route
 
-Tavily page: The Silk Road: Connecting People and Cultures | Smithsonian Folklife Festival — https://festival.si.edu/2002/the-silk-road/the-silk-road-connecting-peoples-and-cultures/smithsonian
+Tavily page: About the Silk Roads | UNESCO — https://www.unesco.org/en/silk-roads/about-silk-roads
 
 ## Sources
 
@@ -80,19 +80,19 @@ Date: date not listed
 URL: https://www.advantour.com/silkroad
 Excerpt: The Silk Road was the longest land-based trade route in history. Its eastern starting point was Chang'an (now Xi'an), China’s ancient capital. Valencia, Spain, is considered one of its western endpoints and is now home to Europe’s main silk archive. Completing the Silk Road in its entirety would have taken more than a year, but merchants typically only traveled to major transit cities. The Silk Road spanned more than 40 modern countries. [...] About Us Contact Us ENG РУС DEU FRA ESP ITA 日本語 Advantour Silk Road Group Tour 1. Home 2. Silk Road Travel Guide # Silk Road Travel Guide The Silk Road was an extraordinary network that connected civilizations across vast distances, fostering the exchange of goods, culture, languages, and religions for centuries. This ancient trade route has left behind remarkable structures, relics, and artifacts that preserve the stories and mysteries of its past. [...] The route earned the name "Silk Road" because silk was a key export from China. Other valuable goods were also traded, including jewelry, food, and even animals. The term "Silk Road" was first coined by German explorer Ferdinand von Richthofen in 1877. In his book "China", he calls the trade route the "Seidenstrasse". This route has left an unparalleled legacy, and its significance continues to influence the world today, as evidenced by several modern initiatives:
 
-[9] About the Silk Roads | UNESCO
+[9] Silk Road | Facts, History, & Map | Britannica
+Type: Tavily
+Authors: Author not listed
+Date: date not listed
+URL: https://www.britannica.com/topic/Silk-Road-trade-route
+Excerpt: Silk Road, ancient trade route, linking China with the West, that carried goods and ideas between the two great civilizations of Rome and China. Silk went westward, and wools, gold, and silver went east. China also received Nestorian Christianity and Buddhism (from India) via the Silk Road. Rocky stream flowing into Karakul Lake with snow-capped Pamir Mountains in the background, under a clear sky in Xinjiang, China. [...] The Silk Road was an ancient trade route that linked the Western world with the Middle East and Asia. It was a major conduit for trade between the Roman Empire and China and later between medieval European kingdoms and China. ### Where did the Silk Road start and end? [...] Part of the Silk Road still exists, in the form of a paved highway connecting Pakistan and the Uyghur Autonomous Region of Xinjiang, China. The old road has been the impetus behind a United Nations plan for a trans-Asian highway, and a railway counterpart of the road has been proposed by the UN Economic and Social Commission for Asia and the Pacific (UNESCAP). The road inspired cellist Yo-Yo Ma to found the Silk Road Project in 1999, which explored cultural traditions along its route and beyond
+
+[10] About the Silk Roads | UNESCO
 Type: Tavily
 Authors: Author not listed
 Date: date not listed
 URL: https://www.unesco.org/en/silk-roads/about-silk-roads
 Excerpt: The term “Silk Road” is relatively recent, and for most of their long history these ancient routes had no specific name. In the mid-nineteenth century, the German geologist Baron Ferdinand von Richthofen designated this network of trade and communication as Die Seidenstrasse (“the Silk Road”). The term, also used in the plural, continues to capture the imagination through its evocative power. [...] Human beings have always travelled from one place to another and traded with their neighbours, exchanging goods, skills and ideas. Throughout history, Eurasia has been criss-crossed by networks of communication and trade routes, which gradually became connected to form what are known today as the Silk Roads: land and maritime routes along which silk and many other goods were exchanged between communities across the world. Maritime routes formed an essential part of this network, linking East [...] The Silk Roads were dynamic and porous; goods were traded with local populations throughout, and local products were added into merchants’ cargos. This process enriched not only the merchants’ material wealth and the variety of their cargos, but also allowed for exchanges of culture, language and ideas to take place along the Silk Roads.
-
-[10] The Silk Road: Connecting People and Cultures | Smithsonian Folklife Festival
-Type: Tavily
-Authors: Author not listed
-Date: date not listed
-URL: https://festival.si.edu/2002/the-silk-road/the-silk-road-connecting-peoples-and-cultures/smithsonian
-Excerpt: The Silk Road spanned the Asian continent and represented a form of global economy when the known world was smaller but more difficult to traverse than nowadays. A network of mostly land but also sea trading routes, the Silk Road stretched from China to Korea and Japan in the east, and connected China through Central Asia to India in the south and to Turkey and Italy in the west. The Silk Road system has existed for over 2,000 years, with specific routes changing over time. For millennia, [...] Since the concept of "Seidenstrassen" or "Silk Roads" was first invented by the German geologist and explorer Baron Ferdinand von Richthofen in 1877, the "Silk Road" has been used as a metaphor of European and Asian cultural interchange. While largely commercial, the Silk Road provided the vehicle for all sorts of creative exchange between tremendously diverse peoples and cultures.
 
 ## Reading notes
 [1] The retrieved text says: The authors of the article have reviewed the scientific literature on the development of the Russian-Chinese cooperation in the field of combining economic and logistics projects of the Eurasian Economic Union and the Silk Road Economic Belt. The opinions of not only Russian, but also Chinese experts on these projects are indicated, which provides the expansion of the vision of the concept of the New Silk Road in both countries.
@@ -103,8 +103,8 @@ Excerpt: The Silk Road spanned the Asian continent and represented a form of glo
 [6] The retrieved text says: The Silk Road is neither an actual road nor a single route. The term instead refers to a network of routes used by traders for more than 1,500 years, from when the Han dynasty of China opened trade in 130 B.C.E.
 [7] The retrieved text says: The Maritime Silk Road or Maritime Silk Route is the maritime section of the historic Silk Road that connected Southeast Asia, East Asia, the Indian subcontinent, the Arabian Peninsula, eastern Africa, and Europe. It began by the 2nd century BCE and flourished until the 15th century CE.
 [8] The retrieved text says: The Silk Road was the longest land-based trade route in history. Its eastern starting point was Chang'an (now Xi'an), China’s ancient capital.
-[9] The retrieved text says: The term “Silk Road” is relatively recent, and for most of their long history these ancient routes had no specific name. In the mid-nineteenth century, the German geologist Baron Ferdinand von Richthofen designated this network of trade and communication as Die Seidenstrasse (“the Silk Road”).
-[10] The retrieved text says: The Silk Road spanned the Asian continent and represented a form of global economy when the known world was smaller but more difficult to traverse than nowadays. A network of mostly land but also sea trading routes, the Silk Road stretched from China to Korea and Japan in the east, and connected China through Central Asia to India in the south and to Turkey and Italy in the west.
+[9] The retrieved text says: Silk Road, ancient trade route, linking China with the West, that carried goods and ideas between the two great civilizations of Rome and China. Silk went westward, and wools, gold, and silver went east.
+[10] The retrieved text says: The term “Silk Road” is relatively recent, and for most of their long history these ancient routes had no specific name. In the mid-nineteenth century, the German geologist Baron Ferdinand von Richthofen designated this network of trade and communication as Die Seidenstrasse (“the Silk Road”).
 
 ## Fallthrough
 These notes stay inside the excerpts. They do not describe methods, samples, or results that the excerpts omit.

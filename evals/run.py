@@ -117,6 +117,13 @@ def judge(inquiry: str, brief: str, paper: str) -> tuple[str, str, str]:
                 f"A claim in the paper uses shelf wording ({marker}).",
             )
 
+    if "none of them is a page about this subject" in support_l:
+        return (
+            "fell through",
+            "search relevance",
+            "The search returned records, but no title is a page about this subject, so the paper does not invent one.",
+        )
+
     if "none of them stated the subject" in support_l:
         blob = brief.lower()
         matched = _query_overlap(blob, terms) >= (len(terms) if len(terms) >= 2 else 1)
@@ -144,6 +151,14 @@ def judge(inquiry: str, brief: str, paper: str) -> tuple[str, str, str]:
             "fell through",
             "writer stitching",
             f"The paper is a short tidbit ({words} words), not an overview a person could talk through.",
+        )
+
+    claim_words = len(re.sub(r"\[[0-9]+\]", " ", support).split())
+    if claim_words < 180:
+        return (
+            "fell through",
+            "search relevance",
+            "The records about this subject are only a short excerpt, so the paper does not invent a longer overview.",
         )
 
     if not titles:

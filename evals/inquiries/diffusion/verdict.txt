@@ -1,7 +1,7 @@
 inquiry: diffusion
-verdict: fell through
-stage: writer stitching
-words: 462
+verdict: worked
+stage: none
+words: 917
 graphic_steps: 6
-opening: In chemistry and materials science, diffusion also refers to the movement of fluid molecules in porous solids.
-failure: The paper is a short tidbit (462 words), not an overview a person could talk through.
+opening: Diffusion is the process by which particles of one substance spread out through the particles of another substance.
+failure: none

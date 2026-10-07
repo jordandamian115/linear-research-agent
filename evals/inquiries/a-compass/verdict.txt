@@ -1,7 +1,7 @@
 inquiry: a compass
-verdict: fell through
-stage: search relevance
-words: 620
+verdict: worked
+stage: none
+words: 1099
 graphic_steps: 6
-opening: Making use of a large part of the apparatus that was previously built for spin structure studies with a muon beam, it also features a new target system as well as new or upgraded detectors.
-failure: The claims describe a particle-physics apparatus named COMPASS, not how a magnetic compass works.
+opening: A compass works anywhere and helps you navigate with confidence in poor visibility.
+failure: none

@@ -18,9 +18,9 @@ Tavily page: BBC - History - Cleopatra — https://www.bbc.co.uk/history/histori
 
 Tavily page: Cleopatra VII: The Last Great Pharaoh of Ancient Egypt - World History Encyclopedia — https://www.worldhistory.org/Cleopatra_VII
 
-Tavily page: Who Was the Real Cleopatra? — https://www.youtube.com/watch?v=p9UkE2YZv_E
-
 Tavily page: Cleopatra - Life, Rule & Death | HISTORY — https://www.history.com/articles/cleopatra
+
+Tavily page: Cleopatra | VII, Thea PhilopatorTomb, Death, Family, Information, Facts, Beauty, & History | Britannica — https://www.britannica.com/biography/Cleopatra-queen-of-Egypt
 
 ## Sources
 
@@ -80,19 +80,19 @@ Date: date not listed
 URL: https://www.worldhistory.org/Cleopatra_VII
 Excerpt: Cleopatra VII (69-30 BCE, reign 51-30 BCE) was the last ruler of Egypt before it was annexed as a province of Rome. Arguably the most famous Egyptian queen, Cleopatra was ethnically Greek as a member of the Macedonian Ptolemaic Dynasty (323-30 BCE), which ruled Egypt after the death of Alexander the Great (356-323 BCE), but she was culturally Egyptian and presented herself as an Egyptian queen. [...] Cleopatra was fluent in a number of languages, was reported to have been extremely charming, and was an effective diplomat and administrator. Her involvement with both Caesar and Mark Antony came about after she had already successfully ruled and steered Ptolemaic Egypt through a difficult period. [...] In 41 BCE, Cleopatra was summoned to appear before Antony in Tarsus to answer charges that she had given aid to Brutus and Cassius. Cleopatra delayed in coming and then delayed further in complying with Antony's summons, making it clear that, as Queen of Egypt, she would come in her own time when she saw fit. Egypt was, at this time, teetering on the edge of economic chaos, but, even so, Cleopatra made sure to present herself as a true sovereign, appearing in luxury on her barge, dressed as
 
-[9] Who Was the Real Cleopatra?
-Type: Tavily
-Authors: Author not listed
-Date: date not listed
-URL: https://www.youtube.com/watch?v=p9UkE2YZv_E
-Excerpt: A little more information: Cleopatra VII, the last queen of Egypt, was a master strategist who worked tirelessly to secure her kingdom's independence. Ascending the throne at a young age, she navigated family rivalries and political unrest to solidify her reign. Known for her intelligence and ambition, Cleopatra strengthened Egypt's economy and military, revitalizing the nation during a time of crisis. [...] # Who Was the Real Cleopatra? ## Channel: Smithsonian Magazine (verified) 44.2K subscribers 87 likes ### Description 14,862 views Posted: 2025-03-28 Cleopatra was the last ruler of ancient Egypt, famous for her sharp mind and political savvy. She navigated tumultuous family rivalries and formed powerful alliances with Julius Caesar and Mark Antony, shaping the fate of empires. Her dramatic life and mysterious death continue to captivate history lovers and storytellers alike. ___ [...] Cleopatra was highly involved in the administration of her realm, overseeing reforms in taxation, grain production, and infrastructure. A shrewd ruler, she managed to maintain Egypt’s independence for as long as possible, even as Rome’s influence expanded. Cleopatra’s political successes made her a symbol of resilience, and her legacy is a testament to her determined rule over the Egyptian kingdom. #cleopatra #egyptianhistory #egyptianfunfacts #queenofthenile #queencleopatra
-
-[10] Cleopatra - Life, Rule & Death | HISTORY
+[9] Cleopatra - Life, Rule & Death | HISTORY
 Type: Tavily
 Authors: Author not listed
 Date: date not listed
 URL: https://www.history.com/articles/cleopatra
 Excerpt: Since no contemporary accounts exist of Cleopatra’s life, it is difficult to piece together her biography with much certainty. Much of what is known about her life comes from the work of Greco-Roman scholars, particularly Plutarch. Born in 70 or 69 B.C., Cleopatra was a daughter of Ptolemy XII (Auletes), a descendant of Ptolemy I Soter, one of Alexander The Great’s generals and the founder of the Ptolemaic line in Egypt. Her mother was believed to be Cleopatra V Tryphaena, the king’s wife (and [...] Cleopatra VII ruled ancient Egypt as co-regent (first with her father, then with her two younger brothers and finally with her son) for almost three decades. She was part of a dynasty of Macedonian rulers founded by Ptolemy, who served as general under Alexander the Great during his conquest of Egypt in 332 B.C. Well-educated and clever, Cleopatra could speak various languages and served as the dominant ruler in all three of her co-regencies. Her romantic liaisons and military alliances with [...] king’s wife (and possibly his half-sister). In 51 B.C., upon the apparently natural death of Auletes, the Egyptian throne passed to 18-year-old Cleopatra and her 10-year-old brother, Ptolemy XIII.
+
+[10] Cleopatra | VII, Thea PhilopatorTomb, Death, Family, Information, Facts, Beauty, & History | Britannica
+Type: Tavily
+Authors: Author not listed
+Date: date not listed
+URL: https://www.britannica.com/biography/Cleopatra-queen-of-Egypt
+Excerpt: Cleopatra VII was destined to become the last queen of the Ptolemaic dynasty—the Macedonian dynasty that ruled Egypt between the death of Alexander the Great in 323 bce and its annexation by Rome in 30 bce. She was the daughter of Ptolemy XII Auletes and, most likely, his wife and sister Cleopatra V Tryphaeana. Although Cleopatra probably had little, if any, Egyptian blood, the classical author Plutarch wrote that she alone of her house took the trouble to learn Egyptian. For political reasons [...] In the popular imagination Cleopatra was seductively beautiful, an image that is reflected in portrayals of the queen and has been used to sell a wide range of products, from cosmetics to cigarettes. This vision of her, however, is not necessarily supported by her contemporary portraiture. Coin portraits of Cleopatra show a countenance alive rather than beautiful, with a sensitive mouth, firm chin, liquid eyes, broad forehead, and prominent nose. The so-called Berlin Cleopatra, a bust of [...] In 40 bce Cleopatra gave birth to twins, whom she named Alexander Helios and Cleopatra Selene. Antony had already left Alexandria to return to Italy, where he was forced to conclude a temporary settlement with Octavian. As part of this settlement, he married Octavian’s sister, Octavia (Fulvia having died). Three years later Antony was convinced that he and Octavian could never come to terms. With his marriage to Octavia now an irrelevance, he returned to the east and reunited with Cleopatra.
 
 ## Reading notes
 [1] The retrieved text says: Content-based information retrieval is based on the information contained in documents rather than using metadata such as keywords. Most information retrieval methods are either based on text or image.
@@ -103,8 +103,8 @@ Excerpt: Since no contemporary accounts exist of Cleopatra’s life, it is diffi
 [6] The retrieved text says: The Latinized form Cleopatra "Cleopatra (given name)") comes from the Ancient Greek Kleopátra (Κλεοπάτρα), meaning 'glory of her father', from κλέος (kléos, 'glory') and πατήρ (patḗr, 'father'). The masculine form would have been written either as Kleópatros (Κλεόπατρος) or Pátroklos (Πάτροκλος).
 [7] The retrieved text says: British Broadcasting CorporationBBCHome BBC Accessibility links History # Cleopatra (c.69 BC - 30 BC) Cleopatra of Egypt Cleopatra of Egypt © Cleopatra VII was the last ruler of the Ptolemaic dynasty, ruling Egypt from 51 BC - 30 BC. She is celebrated for her beauty and her love affairs with the Roman warlords Julius Caesar and Mark Antony.
 [8] The retrieved text says: Cleopatra VII (69-30 BCE, reign 51-30 BCE) was the last ruler of Egypt before it was annexed as a province of Rome. Arguably the most famous Egyptian queen, Cleopatra was ethnically Greek as a member of the Macedonian Ptolemaic Dynasty (323-30 BCE), which ruled Egypt after the death of Alexander the Great (356-323 BCE), but she was culturally Egyptian and presented herself as an Egyptian queen.
-[9] The retrieved text says: A little more information: Cleopatra VII, the last queen of Egypt, was a master strategist who worked tirelessly to secure her kingdom's independence. Ascending the throne at a young age, she navigated family rivalries and political unrest to solidify her reign.
-[10] The retrieved text says: Since no contemporary accounts exist of Cleopatra’s life, it is difficult to piece together her biography with much certainty. Much of what is known about her life comes from the work of Greco-Roman scholars, particularly Plutarch.
+[9] The retrieved text says: Since no contemporary accounts exist of Cleopatra’s life, it is difficult to piece together her biography with much certainty. Much of what is known about her life comes from the work of Greco-Roman scholars, particularly Plutarch.
+[10] The retrieved text says: Cleopatra VII was destined to become the last queen of the Ptolemaic dynasty—the Macedonian dynasty that ruled Egypt between the death of Alexander the Great in 323 bce and its annexation by Rome in 30 bce. She was the daughter of Ptolemy XII Auletes and, most likely, his wife and sister Cleopatra V Tryphaeana.
 
 ## Fallthrough
 These notes stay inside the excerpts. They do not describe methods, samples, or results that the excerpts omit.

@@ -40,6 +40,7 @@ Refinements after the first agent, in the order they were made:
 - This pass: the graphic is five or six steps from that paper, each a concept and an example, in the paper’s order. It does not draw the agents or the search.
 - This pass: the name a person sees is Linear Research Agent. Leftover “desk” on the page, in errors, and in the build note now says “agent”.
 - This pass: a three-letter content word is kept, so “the revolutionary war” is not searched or taught as the single stem “revolutionary”. A later record is not joined with “carries that idea one step further” unless it is the same subject. The evals are in `evals/`.
+- This pass: every record that is actually about the subject is kept, and the paper walks through what it is and how it works at the length of a full overview. A title that only borrows the name stays out. “the revolutionary way” still has no such page, and the paper does not invent one.
 
 ## Downloads
 

@@ -1,7 +1,7 @@
 inquiry: marie curie
-verdict: fell through
-stage: writer stitching
-words: 535
+verdict: worked
+stage: none
+words: 1276
 graphic_steps: 6
-opening: Marie Curie was the first woman to be awarded a place in the Pantheon for her own achievements.
-failure: Three sentences praise her and do not say what she discovered or how the work proceeded.
+opening: Marie Curie was the first woman to win a Nobel Prize and the only woman to win the award in two different fields (Physics, 1903; Chemistry, 1911).
+failure: none
