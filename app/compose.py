@@ -607,7 +607,11 @@ def _role(sentence: str) -> str | None:
     if "entangl" in text and any(cue in text for cue in ("two or more", "far apart", "connected", "single system")):
         return "further"
     if any(cue in text for cue in ("superposition", "multiple possible states", "until they are measured")):
-        return "further"
+        # A sentence that only names the word, or says the equations can calculate it,
+        # does not teach the idea. Keep the sentence only when it says what the state is.
+        if any(cue in text for cue in ("multiple places", "multiple possible", "more than one", "until they are measured", "not confined")):
+            return "further"
+        return None
     if any(cue in text for cue in ("uncertainty principle", "simultaneously known", "position and momentum", "precisely known")):
         return "uncertainty"
     if any(cue in text for cue in ("probability", "exact location", "wave function")):
