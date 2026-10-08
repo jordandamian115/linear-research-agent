@@ -1,0 +1,7 @@
+inquiry: tell me a little bit about the silk road
+verdict: worked
+stage: none
+words: 1392
+graphic_steps: 6
+opening: The Silk Road is neither an actual road nor a single route.
+failure: none

@@ -1,0 +1,7 @@
+inquiry: tell me a little bit about the sun
+verdict: worked
+stage: none
+words: 1092
+graphic_steps: 6
+opening: The sun is an ordinary star, one of about 100 billion in our galaxy, the Milky Way.
+failure: none

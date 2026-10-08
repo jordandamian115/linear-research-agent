@@ -1,0 +1,7 @@
+inquiry: tell me what happened when the berlin wall fell
+verdict: worked
+stage: none
+words: 978
+graphic_steps: 6
+opening: The Berlin Wall fell on 9 November 1989 during the Peaceful Revolution, marking the beginning of the destruction of the figurative Iron Curtain, as East Berlin transit restrictions were overwhelmed and discarded.
+failure: none

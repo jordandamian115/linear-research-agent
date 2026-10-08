@@ -1,0 +1,7 @@
+inquiry: could you explain what a magnetic compass does
+verdict: worked
+stage: none
+words: 1400
+graphic_steps: 6
+opening: A magnetic compass consists of a magnetized needle that rotates to line up with Earth's magnetic field.
+failure: none

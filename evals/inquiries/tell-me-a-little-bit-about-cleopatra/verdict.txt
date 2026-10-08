@@ -1,0 +1,7 @@
+inquiry: tell me a little bit about cleopatra
+verdict: worked
+stage: none
+words: 1682
+graphic_steps: 6
+opening: Cleopatra was highly involved in the administration of her realm, overseeing reforms in taxation, grain production, and infrastructure.
+failure: none

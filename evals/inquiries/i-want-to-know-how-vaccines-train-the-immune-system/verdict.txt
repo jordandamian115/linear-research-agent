@@ -1,0 +1,7 @@
+inquiry: I want to know how vaccines train the immune system
+verdict: worked
+stage: none
+words: 1588
+graphic_steps: 6
+opening: Immunization is the process of becoming immune to (protected against) a disease.
+failure: none

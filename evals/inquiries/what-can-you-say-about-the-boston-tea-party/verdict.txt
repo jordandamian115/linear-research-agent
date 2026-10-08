@@ -1,0 +1,7 @@
+inquiry: what can you say about the boston tea party
+verdict: worked
+stage: none
+words: 799
+graphic_steps: 6
+opening: Boston Tea Party, (December 16, 1773), incident in which 342 chests of tea belonging to the British East India Company were thrown from ships into Boston Harbor by American patriots disguised as Mohawk Indians.
+failure: none

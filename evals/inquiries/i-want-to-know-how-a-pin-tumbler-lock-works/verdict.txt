@@ -1,0 +1,7 @@
+inquiry: I want to know how a pin tumbler lock works
+verdict: worked
+stage: none
+words: 1701
+graphic_steps: 6
+opening: The pin tumbler lock is the older design, with a mechanism dating back to ancient times.
+failure: none

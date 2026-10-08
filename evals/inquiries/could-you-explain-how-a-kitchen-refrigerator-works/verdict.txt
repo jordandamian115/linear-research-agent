@@ -1,0 +1,7 @@
+inquiry: could you explain how a kitchen refrigerator works
+verdict: worked
+stage: none
+words: 933
+graphic_steps: 6
+opening: A refrigerator works by using the vapor compression refrigeration cycle to remove heat from the interior of the appliance and transfer it to the surrounding environment.
+failure: none

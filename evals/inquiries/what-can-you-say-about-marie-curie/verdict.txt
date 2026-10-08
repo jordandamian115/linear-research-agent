@@ -1,0 +1,7 @@
+inquiry: what can you say about marie curie
+verdict: worked
+stage: none
+words: 1042
+graphic_steps: 6
+opening: Marie Curie was the first woman to be awarded a place in the Pantheon for her own achievements.
+failure: none

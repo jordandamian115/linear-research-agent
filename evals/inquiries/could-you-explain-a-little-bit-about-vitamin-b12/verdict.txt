@@ -1,0 +1,7 @@
+inquiry: could you explain a little bit about vitamin b12
+verdict: worked
+stage: none
+words: 1369
+graphic_steps: 6
+opening: Vitamin B12 works with foliate, another B vitamin, to make DNA, our body's genetic material.
+failure: none

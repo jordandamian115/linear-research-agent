@@ -1805,6 +1805,29 @@ def _focus_terms(terms: list[str], sources: list[dict] | None) -> list[str]:
     """
     if len(terms) <= 3 or not sources:
         return list(terms)
+    web_titles = [
+        str(source.get("title") or "")
+        for source in sources
+        if str(source.get("venue") or "").lower() != "arxiv"
+    ]
+    # Pages with ordinary titles come first. An arXiv pair such as
+    # "immune" and "system" was beating "How vaccines work", and the
+    # pages that answer the question were set aside.
+    chosen = _cooccurring_pair(terms, web_titles)
+    if chosen:
+        return chosen
+    web_counts = {
+        term: sum(1 for title in web_titles if _query_overlap(title, [term]) >= 1)
+        for term in terms
+    }
+    in_web = [term for term in terms if web_counts[term] >= 2]
+    if in_web:
+        # No two of these words share a title twice. Requiring both
+        # dropped the page titled with the subject and kept an excerpt
+        # that merely contains the pair. The word the ordinary titles
+        # use most often is the subject.
+        ranked = sorted(in_web, key=lambda term: (-web_counts[term], terms.index(term)))
+        return [ranked[0]]
     titles = [str(source.get("title") or "") for source in sources]
     chosen = _cooccurring_pair(terms, titles)
     if chosen:

@@ -10,15 +10,67 @@
 # the HTTP status, and a hit with a title but no snippet could disappear
 # before Agent 1. A failed keyless response now keeps that status instead
 # of looking like a quiet empty success.
+# A leading "could you tell me" was then the search. The word "could"
+# returned dictionary pages, and the skillet pages never arrived. The
+# request frame is removed. The words that remain are the search. The
+# user's sentence is still the question on the brief.
 
 import json
 import os
+import re
 import urllib.error
 import urllib.request
 
+_FRAMES = (
+    "could you please tell me how",
+    "could you please explain how",
+    "could you tell me how",
+    "could you explain how",
+    "could you tell me",
+    "could you explain",
+    "can you tell me how",
+    "can you explain how",
+    "can you tell me",
+    "can you explain",
+    "would you tell me how",
+    "would you explain how",
+    "please tell me how",
+    "please explain how",
+    "i want to know how",
+    "i want to know",
+    "i would like to know how",
+    "i would like to know",
+    "what can you say about",
+    "what can you tell me about",
+    "tell me a little bit about",
+    "tell me about",
+    "tell me",
+)
+
+
+def _subject_query(query: str) -> str:
+    """The topic, without the sentence that asks for it."""
+    text = " ".join(str(query or "").split())
+    for phrase in (
+        "a little bit about",
+        "a little bit",
+        "little bit about",
+        "little bit",
+        "a bit about",
+    ):
+        text = re.sub(rf"\b{re.escape(phrase)}\b", " ", text, flags=re.I)
+    text = " ".join(text.split())
+    lowered = text.lower()
+    for frame in _FRAMES:
+        if lowered == frame or lowered.startswith(frame + " "):
+            text = text[len(frame):].strip()
+            break
+    text = text.strip(" ?.!")
+    return " ".join(text.split()) or " ".join(str(query or "").split())
+
 
 def tavily_search(query: str, max_results: int = 5) -> dict:
-    phrase = " ".join(str(query or "").split())
+    phrase = _subject_query(query)
     if not phrase:
         return _fallback(phrase, "Empty query.")
 

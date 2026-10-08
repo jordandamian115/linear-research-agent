@@ -1,0 +1,7 @@
+inquiry: tell me a little bit about the moon
+verdict: worked
+stage: none
+words: 1623
+graphic_steps: 6
+opening: The Moon is roughly 1/4 the radius of the Earth - a larger satellite-to-planet size ratio than all known satellites other than Pluto's Charon.
+failure: none

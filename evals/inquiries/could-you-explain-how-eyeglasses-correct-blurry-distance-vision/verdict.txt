@@ -1,0 +1,7 @@
+inquiry: could you explain how eyeglasses correct blurry distance vision
+verdict: fell through
+stage: search relevance
+words: 647
+graphic_steps: 6
+opening: Eyeglasses Eyeglasses are wearable accessories and medical devices that help you see.
+failure: The records about this subject are only a short excerpt, so the paper does not invent a longer overview.

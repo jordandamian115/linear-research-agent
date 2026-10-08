@@ -97,3 +97,45 @@ The shared repair does not add a medical rule. An opening verb such as “tell�
 | how does a pair of eyeglasses correct blurry vision for a nearsighted person | 13 | worked | 1036 | |
 | why does a cast iron skillet hold heat longer than a thin steel pan | 14 | worked | 1032 | |
 | how does a bicycle gear let a rider climb a hill without standing up | 14 | worked | 893 | |
+
+## Conversational questions
+
+The grammar of the question is the point. “tell me”, “a little bit about”, “what can you say about”, “could you explain”, and “I want to know how” are not the subject. A paper works only when it is a long overview of the thing asked about. A blank page, a note that none of the records is about the subject, or a stitch onto a paper that only shares “little”, “bit”, “about”, or “tell” fell through.
+
+Run this set with `PYTHONPATH=/workspace python3 evals/run.py --chat`.
+
+### What went wrong on the sun question
+
+“tell me a little bit about the sun” kept three terms: little, bit, and sun. A title had to contain all three. The National Geographic page is titled “Sun”, so it was set aside with the other sun pages. arXiv’s keyword search used “little” and “bit” and returned papers on bit-level sparsity, “little communication”, and “a little bit of doping”. The paper was 304 words and taught nothing. The filler was treated as the subject. The sun was not special-cased.
+
+The bad passage, from the abstract and again from “What the records support”:
+
+> This note records the search for tell me a little bit about the sun. The search returned records, but none of them is a page about this subject. Nothing was invented to fill the gap.
+
+The limits named “Bit-balance”, “with Little Communication”, and “Sun” in one list.
+
+The shared repair drops the phrase “a little bit” and the asking words “say”, “want”, and “know”. A leading “could you tell me” is not the web-search query. What remains is the subject. “the sun” is that subject. Claims still come only from the retrieved sentences. The rerun opens: “The sun is an ordinary star, one of about 100 billion in our galaxy, the Milky Way.”
+
+### Results
+
+16 worked. 1 fell through. The eyeglasses question kept a short clinic excerpt after the virtual-reality paper was set aside, and the paper does not invent a longer account.
+
+| Inquiry | Question words | Result | Paper words | Failure |
+| --- | --- | --- | --- | --- |
+| tell me a little bit about the sun | 8 | worked | 1092 | |
+| what can you say about the printing press | 8 | worked | 974 | |
+| could you explain how a kitchen refrigerator works | 8 | worked | 933 | |
+| I want to know how vaccines train the immune system | 10 | worked | 1588 | |
+| tell me a little bit about cleopatra | 7 | worked | 1682 | |
+| what can you say about marie curie | 7 | worked | 1042 | |
+| could you explain what a magnetic compass does | 8 | worked | 1400 | |
+| I want to know how a pin tumbler lock works | 10 | worked | 1701 | |
+| tell me a little bit about the silk road | 9 | worked | 1392 | |
+| what can you say about the boston tea party | 9 | worked | 799 | |
+| could you explain how eyeglasses correct blurry distance vision | 9 | fell through | 647 | The records about eyeglasses are a short excerpt, so the paper does not invent a longer overview. |
+| I want to know a little bit about ada lovelace | 10 | worked | 1206 | |
+| tell me what happened when the berlin wall fell | 9 | worked | 978 | |
+| could you explain a little bit about vitamin b12 | 9 | worked | 1369 | |
+| what can you say about the hubble space telescope | 9 | worked | 1412 | |
+| tell me a little bit about the moon | 8 | worked | 1623 | |
+| could you tell me how a cast iron skillet holds heat | 11 | worked | 709 | |

@@ -1,0 +1,7 @@
+inquiry: what can you say about the hubble space telescope
+verdict: worked
+stage: none
+words: 1412
+graphic_steps: 6
+opening: The Hubble Space Telescope is the only observatory capable of measuring the UV spectrum and enabling the characterization of exoplanet high-energy environments.
+failure: none
