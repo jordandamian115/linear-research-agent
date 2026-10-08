@@ -1,3 +1,5 @@
+Jordan Damian's Agentic AI model built with linear communication style. Agent 1 begins research, feeding into Agent 2 who produces a rough draft. Agent 3 receives the rough draft and adds critiques, and feeds it into the RAG Agent to cross reference the documents with some well written speeches and peer reviewed articles. Agent 5 produces a final draft using all of the information given, and Agent 6 generates an image to help visual learners digest the information.
+
 # Linear Research Agent
 
 Jordan Damian's agentic research agent. Six agents run once, in order, and do not call back.
@@ -43,6 +45,7 @@ Refinements after the first agent, in the order they were made:
 - This pass: every record that is actually about the subject is kept, and the paper walks through what it is and how it works at the length of a full overview. A title that only borrows the name stays out. “the revolutionary way” still has no such page, and the paper does not invent one.
 - This pass: a sentence-length question is not required in full. “tell me about the medicinal benefits of consistent vitamin B12 usage” had set the vitamin B12 pages aside because the title had to contain “tell”. The eval set of 5-to-30-word questions is in `evals/`.
 - This pass: “a little bit”, “tell me”, and “could you” are not the subject. “tell me a little bit about the sun” is a paper about the sun. The conversational questions are in `evals/`.
+- This pass: Jordan’s opening paragraph is the first text in this file.
 
 ## Downloads
 
