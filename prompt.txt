@@ -24,7 +24,11 @@ why mine was insufficient, and provide feedback, was I close to what was needed?
 You will navigate to C:/This_PC/Desktop/Agentic_AI_Project to find all of the code. You will be using Agent 1, Agent 2, Agent 3,
 RAG Agent, Agent 5, Agent 6, and tools. You may view prompt and planned structure as well. 
 
-I have coded out tools and I believe it is ready to go. tavily requires a link and it is as follows : Read and execute a personal setup link
+**Original code commented out**
+# I have coded out tools and I believe it is ready to go. tavily requires a link and it is as follows : Read and execute the personal setup link, which is kept out of this file.
+
+**Code added by Cursor**
+The personal Tavily setup link is kept out of the repo and the key belongs in an untracked .env. The disabled line named a personal link other people could open. The link text is omitted so this file can be published. The note was close: the tools are ready, and usage stays on the owner's account when the key is in an untracked .env.
 Do not include that link in code that would be viewable to others. As it is my link and they could access it and charge me money based off of code usage.
 
 I would like this to be a locally hosted app, in which you can type in your query, watch each agent work, so you can see it go through each step, read each rough draft, 

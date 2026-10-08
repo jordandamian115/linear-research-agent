@@ -1,8 +1,16 @@
 .env
+.env.*
+!.env.example
 .venv/
+venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
 data/rag-cache/
 data/jobs/
 *.log
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
