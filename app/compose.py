@@ -61,6 +61,13 @@ from __future__ import annotations
 # subject, and they were taught as the same account. Pages whose title is
 # the question stay together. A page that only mentions the question stays
 # when its account matches. A title that is a different subject does not.
+# A sentence-length question was then required in full. "tell me about the
+# medicinal benefits of consistent vitamin B12 usage" kept "tell", and no
+# title contains every remaining word, so the health pages were set aside
+# with the note that none of them is a page about the subject. The opening
+# verb is not the subject. For a question of four or more content words,
+# the terms are the words the retrieved titles share. A question of three
+# words or fewer is unchanged, so a two-word name is never one stem.
 
 TEACHING_STANDARD = """
 Write a basic academic paper someone could hand to another person or turn in for a class.
@@ -236,7 +243,7 @@ _ROLE_JOB = {
 
 def _outline(query: str, sources: list[dict]) -> dict:
     """Keep sentences that can teach, in an order that builds. Nothing is added."""
-    terms = _query_terms(query)
+    terms = _focus_terms(_query_terms(query), sources)
     aside = []
     prepared = []
     held = []
@@ -286,7 +293,7 @@ def _outline(query: str, sources: list[dict]) -> dict:
             aside.append(source)
             continue
         prepared.append({**source, "candidates": found, "sequence": _sequence(text), "terms": terms})
-    return {"steps": _pick_steps(prepared), "aside": aside}
+    return {"steps": _pick_steps(prepared), "aside": aside, "terms": terms}
 
 
 def _leave_room_for_follows(found: list[tuple], text: str) -> list[tuple]:
@@ -598,7 +605,7 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
     # subject. Leave it out instead of stitching it on with a continuation
     # the two texts do not share. When two full matches still describe
     # different subjects, keep the thread whose title is the question.
-    terms = _query_terms(query)
+    terms = outline.get("terms") or _focus_terms(_query_terms(query), [step["source"] for step in steps])
     on_question = [step for step in steps if _on_question(step, terms)]
     kept = _subject_thread(on_question, terms)
     kept_urls = {step["source"].get("url") for step in kept}
@@ -761,7 +768,11 @@ def _frame(query: str) -> dict:
     text = " ".join(query.strip().split())
     lowered = text.lower()
     is_question = text.endswith("?") or lowered.startswith(
-        ("how ", "what ", "why ", "when ", "who ", "where ", "does ", "do ", "is ", "are ", "can ")
+        (
+            "how ", "what ", "why ", "when ", "who ", "where ", "does ", "do ",
+            "is ", "are ", "can ", "tell ", "explain ", "describe ", "discuss ",
+            "please ", "define ", "talk ",
+        )
     )
     if is_question:
         question = text if text.endswith("?") else text.rstrip(".") + "?"
@@ -1717,7 +1728,8 @@ def _on_question(step: dict, terms: list[str]) -> bool:
 def _query_terms(query: str) -> list[str]:
     # "the" and "of" are not the subject. "war", "sun", and "way" are.
     # Dropping every word of three letters turned "the revolutionary war"
-    # into the single stem "revolutionary".
+    # into the single stem "revolutionary". "tell" and "explain" are how
+    # the question is asked, not words the page has to contain.
     stop = {
         "the", "and", "for", "are", "was", "not", "but", "you", "how", "why",
         "who", "its", "his", "her", "our", "can", "may", "did", "has", "had",
@@ -1729,12 +1741,48 @@ def _query_terms(query: str) -> list[str]:
         "most", "also", "just", "under", "through", "during", "being",
         "before", "after", "again", "because", "between", "while", "using",
         "used", "work", "works",
+        "tell", "please", "explain", "describe", "discuss", "define", "talk",
     }
     return [
         word.lower()
         for word in re.findall(r"[A-Za-z][A-Za-z0-9'-]+", query)
         if len(word) >= 3 and word.lower() not in stop
     ]
+
+
+def _focus_terms(terms: list[str], sources: list[dict] | None) -> list[str]:
+    """The words a long question's titles actually share.
+
+    Requiring every word of a sentence ("consistent", "usage", "tell") left
+    no title that counted as the subject, including the pages that were
+    about it. A question of three content words or fewer stays whole, so
+    "the revolutionary war" is never searched or taught as one stem.
+    """
+    if len(terms) <= 3 or not sources:
+        return list(terms)
+    titles = [str(source.get("title") or "") for source in sources]
+    counts = {
+        term: sum(1 for title in titles if _query_overlap(title, [term]) >= 1)
+        for term in terms
+    }
+    shared = [term for term in terms if counts[term] >= 2]
+    if len(shared) >= 2:
+        # Two words the titles share most often. A third modifier such as
+        # "benefits" sits in the question and in some titles, and requiring
+        # it rejected a title whose heading is the subject itself.
+        ranked = sorted(shared, key=lambda term: (-counts[term], terms.index(term)))
+        chosen = set(ranked[:2])
+        return [term for term in terms if term in chosen]
+    if len(shared) == 1:
+        return shared
+    best: list[str] = []
+    for title in titles:
+        present = [term for term in terms if _query_overlap(title, [term]) >= 1]
+        if len(present) > len(best):
+            best = present
+    if len(best) >= 2:
+        return best
+    return list(terms)
 
 
 def _source_score(source: dict, terms: list[str]) -> int:

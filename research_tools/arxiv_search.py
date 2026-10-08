@@ -10,6 +10,12 @@
 # "the revolutionary war" therefore became a search for "revolutionary",
 # which is a different subject. Three-letter content words stay. A question
 # with two or more content words is never searched as one leftover word.
+# The keyword fallback then used the first content words. "tell me about
+# the medicinal benefits of consistent vitamin B12 usage" searched "tell",
+# and a lunar paper matched because it says "much to tell us about". The
+# opening verb is not the subject. A token with a digit is paired with the
+# word beside it. Otherwise the longest words are used, still in the order
+# they were typed.
 
 import re
 import urllib.error
@@ -28,6 +34,7 @@ _STOP = {
     "the", "and", "for", "are", "was", "not", "but", "you", "how", "why",
     "who", "its", "his", "her", "our", "can", "may", "did", "has", "had",
     "any", "all", "via", "per", "off", "out", "also", "just",
+    "tell", "please", "explain", "describe", "discuss", "define", "talk",
 }
 
 _ATOM = {"a": "http://www.w3.org/2005/Atom"}
@@ -49,11 +56,12 @@ def arxiv_search(query: str, max_results: int = 5) -> dict:
         ]
         # Drop one keyword at a time, but never down to a single leftover
         # word. A wide OR, and a one-word AND, both pull a different subject.
-        smallest = 2 if len(words) >= 2 else 1
-        for size in range(min(3, len(words)), smallest - 1, -1):
+        window = _keyword_window(words)
+        smallest = 2 if len(window) >= 2 else 1
+        for size in range(min(3, len(window)), smallest - 1, -1):
             if results:
                 break
-            focused = " AND ".join(f"all:{word}" for word in words[:size])
+            focused = " AND ".join(f"all:{word}" for word in window[:size])
             results = _entries(_fetch(focused, max_results))
             if results:
                 note = "The exact question matched nothing on arXiv. A keyword search for this topic was used."
@@ -68,6 +76,19 @@ def arxiv_search(query: str, max_results: int = 5) -> dict:
     if not results and note is None:
         note = "arXiv returned no matching papers."
     return {"source": "arxiv", "query": phrase, "results": results, "note": note}
+
+
+def _keyword_window(words: list[str]) -> list[str]:
+    """The keyword AND for this topic, not the first words of the sentence."""
+    if len(words) <= 3:
+        return words
+    for index, word in enumerate(words):
+        if any(character.isdigit() for character in word):
+            before = words[index - 1] if index else None
+            after = words[index + 1] if index + 1 < len(words) else None
+            return [part for part in (before, word, after) if part]
+    longest = sorted(range(len(words)), key=lambda index: len(words[index]), reverse=True)[:3]
+    return [words[index] for index in sorted(longest)]
 
 
 def _fetch(search_query: str, max_results: int) -> bytes:

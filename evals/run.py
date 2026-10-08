@@ -16,7 +16,7 @@ from agents.rag_ag import rag_ag
 from agents.res_ag import res_ag
 from agents.revise_draft_ag import revise_draft_ag
 from agents.rough_draft_ag import rough_draft_ag
-from app.compose import _query_overlap, _query_terms
+from app.compose import _focus_terms, _query_overlap, _query_terms
 
 ROOT = Path(__file__).resolve().parent
 
@@ -46,6 +46,29 @@ INQUIRIES = [
     "transformer",
     "diffusion",
     "entropy",
+]
+
+# Sentence-length questions, each 5 to 30 words. Not one-to-three-word titles.
+# The first is the inquiry that set these pages aside.
+LONG_INQUIRIES = [
+    "tell me about the medicinal benefits of consistent vitamin B12 usage",
+    "how does a daily walk of thirty minutes affect blood pressure in adults",
+    "what happens in the body when someone has not slept for two nights",
+    "why do some people get seasonal allergies every spring and others do not",
+    "how do vaccines train the immune system to recognize a virus later",
+    "how did the printing press change the way ideas spread across early modern Europe",
+    "what led ordinary colonists to dump tea into Boston harbor in 1773",
+    "why did the Berlin Wall fall in November 1989 and what changed afterward",
+    "how did Cleopatra keep her throne while Rome was expanding into Egypt",
+    "what did Marie Curie actually discover and why did that work matter to medicine",
+    "how did Ada Lovelace describe the analytical engine and what could it do",
+    "why is Sun Tzu still read by people who are not fighting a war",
+    "how does a pin tumbler lock keep a door shut until the right key is used",
+    "how does a kitchen refrigerator move heat out of the food compartment",
+    "what does a magnetic compass needle do and how do you take a bearing with it",
+    "how does a pair of eyeglasses correct blurry vision for a nearsighted person",
+    "why does a cast iron skillet hold heat longer than a thin steel pan",
+    "how does a bicycle gear let a rider climb a hill without standing up",
 ]
 
 _SHELF = (
@@ -96,7 +119,8 @@ def _titles(brief: str) -> list[str]:
 
 
 def judge(inquiry: str, brief: str, paper: str) -> tuple[str, str, str]:
-    terms = _query_terms(inquiry)
+    titles = [title for _n, title in _titles(brief)]
+    terms = _focus_terms(_query_terms(inquiry), [{"title": title} for title in titles])
     support = _section(paper, "## What the records support", "## Retrieved records")
     support_l = support.lower()
     words = word_count(paper)
@@ -206,7 +230,10 @@ def run_one(inquiry: str) -> dict:
 
 
 def main(only: list[str] | None = None) -> None:
-    chosen = only or INQUIRIES
+    if only == ["--long"]:
+        chosen = LONG_INQUIRIES
+    else:
+        chosen = only or INQUIRIES
     for inquiry in chosen:
         print(f"=== {inquiry} ===", flush=True)
         result = run_one(inquiry)
