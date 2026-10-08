@@ -68,6 +68,13 @@ from __future__ import annotations
 # verb is not the subject. For a question of four or more content words,
 # the terms are the words the retrieved titles share. A question of three
 # words or fewer is unchanged, so a two-word name is never one stem.
+# "tell me a little bit about the sun" then kept "little" and "bit" as
+# terms beside "sun". No page about the sun is titled with those filler
+# words, so the sun pages were set aside with papers that only share
+# "little" or "bit". The phrase "a little bit" is how the question is
+# asked. "say", "want", and "know" are the same kind of grammar. The
+# subject is whatever remains. A question that is only those words still
+# has no subject, and nothing is invented.
 
 TEACHING_STANDARD = """
 Write a basic academic paper someone could hand to another person or turn in for a class.
@@ -772,7 +779,8 @@ def _frame(query: str) -> dict:
         (
             "how ", "what ", "why ", "when ", "who ", "where ", "does ", "do ",
             "is ", "are ", "can ", "tell ", "explain ", "describe ", "discuss ",
-            "please ", "define ", "talk ",
+            "please ", "define ", "talk ", "could ", "would ", "i want ",
+            "i'd ", "id ",
         )
     )
     if is_question:
@@ -1754,12 +1762,34 @@ def _query_terms(query: str) -> list[str]:
         "before", "after", "again", "because", "between", "while", "using",
         "used", "work", "works",
         "tell", "please", "explain", "describe", "discuss", "define", "talk",
+        "say", "says", "said", "want", "wants", "wanted", "know", "knows",
+        "knowing",
     }
+    text = _without_filler(query)
     return [
         word.lower()
-        for word in re.findall(r"[A-Za-z][A-Za-z0-9'-]+", query)
+        for word in re.findall(r"[A-Za-z][A-Za-z0-9'-]+", text)
         if len(word) >= 3 and word.lower() not in stop
     ]
+
+
+def _without_filler(query: str) -> str:
+    """Drop the grammar of the request, and leave the subject.
+
+    "a little bit about" is not part of the topic. Stripping the word
+    "bit" everywhere would hide a question that is about a bit. The
+    phrase is the filler. "the sun" stays.
+    """
+    text = " ".join(str(query or "").split())
+    for phrase in (
+        "a little bit about",
+        "a little bit",
+        "little bit about",
+        "little bit",
+        "a bit about",
+    ):
+        text = re.sub(rf"\b{re.escape(phrase)}\b", " ", text, flags=re.I)
+    return " ".join(text.split())
 
 
 def _focus_terms(terms: list[str], sources: list[dict] | None) -> list[str]:

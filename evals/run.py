@@ -71,6 +71,28 @@ LONG_INQUIRIES = [
     "how does a bicycle gear let a rider climb a hill without standing up",
 ]
 
+# Conversational questions. The grammar is the point: filler such as
+# "tell me", "a little bit", and "I want to know" is not the subject.
+CONVERSATIONAL = [
+    "tell me a little bit about the sun",
+    "what can you say about the printing press",
+    "could you explain how a kitchen refrigerator works",
+    "I want to know how vaccines train the immune system",
+    "tell me a little bit about cleopatra",
+    "what can you say about marie curie",
+    "could you explain what a magnetic compass does",
+    "I want to know how a pin tumbler lock works",
+    "tell me a little bit about the silk road",
+    "what can you say about the boston tea party",
+    "could you explain how eyeglasses correct blurry distance vision",
+    "I want to know a little bit about ada lovelace",
+    "tell me what happened when the berlin wall fell",
+    "could you explain a little bit about vitamin b12",
+    "what can you say about the hubble space telescope",
+    "tell me a little bit about the moon",
+    "could you tell me how a cast iron skillet holds heat",
+]
+
 _SHELF = (
     "gettysburg",
     "i have a dream",
@@ -240,6 +262,8 @@ def run_one(inquiry: str) -> dict:
 def main(only: list[str] | None = None) -> None:
     if only == ["--long"]:
         chosen = LONG_INQUIRIES
+    elif only == ["--chat"]:
+        chosen = CONVERSATIONAL
     else:
         chosen = only or INQUIRIES
     for inquiry in chosen:

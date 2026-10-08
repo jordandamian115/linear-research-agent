@@ -15,7 +15,9 @@
 # and a lunar paper matched because it says "much to tell us about". The
 # opening verb is not the subject. A token with a digit is paired with the
 # word beside it. Otherwise the longest words are used, still in the order
-# they were typed.
+# they were typed. "a little bit about the sun" was then searched as
+# "little" and "bit", which is a different subject. That phrase is filler.
+# The words that remain are the search.
 
 import re
 import urllib.error
@@ -35,6 +37,8 @@ _STOP = {
     "who", "its", "his", "her", "our", "can", "may", "did", "has", "had",
     "any", "all", "via", "per", "off", "out", "also", "just",
     "tell", "please", "explain", "describe", "discuss", "define", "talk",
+    "say", "says", "said", "want", "wants", "wanted", "know", "knows",
+    "knowing",
 }
 
 _ATOM = {"a": "http://www.w3.org/2005/Atom"}
@@ -51,7 +55,7 @@ def arxiv_search(query: str, max_results: int = 5) -> dict:
         note = None
         words = [
             word
-            for word in re.findall(r"[A-Za-z0-9]+", quoted)
+            for word in re.findall(r"[A-Za-z0-9]+", _without_filler(quoted))
             if len(word) >= 3 and word.lower() not in _STOP
         ]
         # Drop one keyword at a time, but never down to a single leftover
@@ -76,6 +80,20 @@ def arxiv_search(query: str, max_results: int = 5) -> dict:
     if not results and note is None:
         note = "arXiv returned no matching papers."
     return {"source": "arxiv", "query": phrase, "results": results, "note": note}
+
+
+def _without_filler(query: str) -> str:
+    """The same request phrases the writer ignores. "a little bit" is not the topic."""
+    text = " ".join(str(query or "").split())
+    for phrase in (
+        "a little bit about",
+        "a little bit",
+        "little bit about",
+        "little bit",
+        "a bit about",
+    ):
+        text = re.sub(rf"\b{re.escape(phrase)}\b", " ", text, flags=re.I)
+    return " ".join(text.split())
 
 
 def _keyword_window(words: list[str]) -> list[str]:
