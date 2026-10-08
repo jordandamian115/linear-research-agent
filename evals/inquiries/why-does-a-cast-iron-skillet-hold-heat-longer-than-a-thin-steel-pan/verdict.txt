@@ -1,0 +1,7 @@
+inquiry: why does a cast iron skillet hold heat longer than a thin steel pan
+verdict: worked
+stage: none
+words: 1032
+graphic_steps: 5
+opening: Cast iron is dense and heavy, which means it has a much higher thermal mass than materials like aluminum or stainless steel.
+failure: none

@@ -1,0 +1,7 @@
+inquiry: how did Cleopatra keep her throne while Rome was expanding into Egypt
+verdict: worked
+stage: none
+words: 1324
+graphic_steps: 6
+opening: Cleopatra's achievements as queen reflect her political ingenuity, economic strategy, and cultural patronage, all of which were crucial in an era of increasing Roman expansion.
+failure: none

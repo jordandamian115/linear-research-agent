@@ -16,7 +16,7 @@ from agents.rag_ag import rag_ag
 from agents.res_ag import res_ag
 from agents.revise_draft_ag import revise_draft_ag
 from agents.rough_draft_ag import rough_draft_ag
-from app.compose import _focus_terms, _query_overlap, _query_terms
+from app.compose import _focus_terms, _parse_brief, _query_overlap, _query_terms
 
 ROOT = Path(__file__).resolve().parent
 
@@ -119,8 +119,9 @@ def _titles(brief: str) -> list[str]:
 
 
 def judge(inquiry: str, brief: str, paper: str) -> tuple[str, str, str]:
+    _query, sources = _parse_brief(brief)
     titles = [title for _n, title in _titles(brief)]
-    terms = _focus_terms(_query_terms(inquiry), [{"title": title} for title in titles])
+    terms = _focus_terms(_query_terms(inquiry), sources or [{"title": title} for title in titles])
     support = _section(paper, "## What the records support", "## Retrieved records")
     support_l = support.lower()
     words = word_count(paper)
@@ -163,7 +164,14 @@ def judge(inquiry: str, brief: str, paper: str) -> tuple[str, str, str]:
             "The records Agent 1 kept do not contain the question.",
         )
 
-    if _query_overlap(support, terms) < (len(terms) if len(terms) >= 2 else 1):
+    raw = _query_terms(inquiry)
+    needed = len(terms) if len(terms) >= 2 else 1
+    # A sentence-length question is narrowed to two shared words. The
+    # overview can say "hill" where the pair said "climb". A short question
+    # is not narrowed, so both of its words still have to appear.
+    if len(terms) < len(raw):
+        needed = 1
+    if _query_overlap(support, terms) < needed:
         return (
             "fell through",
             "search relevance",

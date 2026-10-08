@@ -1,0 +1,7 @@
+inquiry: why do some people get seasonal allergies every spring and others do not
+verdict: worked
+stage: none
+words: 1724
+graphic_steps: 6
+opening: Seasonal allergies, also known as hay fever or allergic rhinitis, are essentially an immunologic response to specific allergens prevalent during particular seasons.
+failure: none

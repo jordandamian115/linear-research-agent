@@ -1,0 +1,7 @@
+inquiry: how do vaccines train the immune system to recognize a virus later
+verdict: worked
+stage: none
+words: 1770
+graphic_steps: 6
+opening: Vaccines work by teaching your body to recognize specific dangerous pathogens so your immune system is prepared to fight off that infection in the future.
+failure: none

@@ -1,0 +1,7 @@
+inquiry: how does a daily walk of thirty minutes affect blood pressure in adults
+verdict: worked
+stage: none
+words: 1196
+graphic_steps: 6
+opening: With the subject named, the records say how it works.
+failure: none

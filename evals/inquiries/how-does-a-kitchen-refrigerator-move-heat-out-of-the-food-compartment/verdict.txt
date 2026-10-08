@@ -1,0 +1,7 @@
+inquiry: how does a kitchen refrigerator move heat out of the food compartment
+verdict: worked
+stage: none
+words: 1198
+graphic_steps: 6
+opening: Heat from the refrigerant is released into the atmosphere, and the refrigerant cools, working its way through the condenser coils and onto the expansion device.
+failure: none

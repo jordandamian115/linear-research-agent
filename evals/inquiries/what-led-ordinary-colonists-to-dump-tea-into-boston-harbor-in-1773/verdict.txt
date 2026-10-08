@@ -1,0 +1,7 @@
+inquiry: what led ordinary colonists to dump tea into Boston harbor in 1773
+verdict: worked
+stage: none
+words: 986
+graphic_steps: 6
+opening: The Boston Tea Party was a political protest that occurred on December 16, 1773, in Boston, Massachusetts.
+failure: none

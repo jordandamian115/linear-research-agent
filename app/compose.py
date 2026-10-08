@@ -605,9 +605,10 @@ def _write_from_outline(query: str, title: str, today: str, outline: dict) -> st
     # subject. Leave it out instead of stitching it on with a continuation
     # the two texts do not share. When two full matches still describe
     # different subjects, keep the thread whose title is the question.
-    terms = outline.get("terms") or _focus_terms(_query_terms(query), [step["source"] for step in steps])
+    raw_terms = _query_terms(query)
+    terms = outline.get("terms") or _focus_terms(raw_terms, [step["source"] for step in steps])
     on_question = [step for step in steps if _on_question(step, terms)]
-    kept = _subject_thread(on_question, terms)
+    kept = _subject_thread(on_question, terms, narrowed=len(terms) < len(raw_terms))
     kept_urls = {step["source"].get("url") for step in kept}
     dropped_sources = []
     dropped_seen: set[str] = set()
@@ -1420,17 +1421,23 @@ def _query_is_setting(title: str, terms: list[str]) -> bool:
     return bool(prior)
 
 
-def _title_relation(title: str, terms: list[str]) -> str:
+def _title_relation(title: str, terms: list[str], narrowed: bool = False) -> str:
     """subject when the title is the question, mention when it only uses the name.
 
     A colon subtitle that never says the question is a different page that
     borrowed the name ("Traveling the Silk Road: ... online marketplace").
+    A sentence-length question is first narrowed to the words its titles
+    share. A heading that contains those words is the subject even when the
+    heading also has its own words. A two-word question is not narrowed, so
+    this does not turn a borrowed name into the subject.
     """
     if not terms:
         return "subject"
     needed = len(terms) if len(terms) >= 2 else 1
     if _query_overlap(title, terms) < needed:
         return "other"
+    if narrowed and not _query_is_setting(title, terms):
+        return "subject"
     if _query_is_setting(title, terms):
         return "mention"
     segments = _title_segments(title) or [title]
@@ -1557,7 +1564,7 @@ def _accounts_match(
     return False
 
 
-def _subject_thread(steps: list[dict], terms: list[str]) -> list[dict]:
+def _subject_thread(steps: list[dict], terms: list[str], narrowed: bool = False) -> list[dict]:
     """Keep every record that is the same subject, and no other.
 
     Pages that tell the same account stay, including pages that do not
@@ -1577,7 +1584,7 @@ def _subject_thread(steps: list[dict], terms: list[str]) -> list[dict]:
         seen.add(url)
         sources.append(step["source"])
     relation = {
-        (source.get("url") or ""): _title_relation(source.get("title") or "", terms)
+        (source.get("url") or ""): _title_relation(source.get("title") or "", terms, narrowed)
         for source in sources
     }
     blobs = {
@@ -1624,7 +1631,12 @@ def _subject_thread(steps: list[dict], terms: list[str]) -> list[dict]:
         if any_subject and not has_subject:
             continue
         if len(members) < 2 and not has_subject:
-            continue
+            # A long question's title often does not repeat the two shared
+            # words, so the page is "other" even when the excerpt is the
+            # account. One long excerpt is still the subject. A short
+            # question is not narrowed, and a two-sentence excerpt stays out.
+            if not (narrowed and sum(counts[url] for url in members) >= 5):
+                continue
         ranked.append((len(members), sum(counts[url] for url in members), members))
     if not ranked:
         return []
@@ -1751,28 +1763,42 @@ def _query_terms(query: str) -> list[str]:
 
 
 def _focus_terms(terms: list[str], sources: list[dict] | None) -> list[str]:
-    """The words a long question's titles actually share.
+    """The words a long question's records actually share.
 
     Requiring every word of a sentence ("consistent", "usage", "tell") left
     no title that counted as the subject, including the pages that were
-    about it. A question of three content words or fewer stays whole, so
-    "the revolutionary war" is never searched or taught as one stem.
+    about it. Taking the two most common words independently was the same
+    mistake one step later: "happens" and "someone" each appeared somewhere,
+    never in one title, and the pages about the question were set aside.
+    The pair has to occur together. A question of three content words or
+    fewer stays whole, so "the revolutionary war" is never one stem.
     """
     if len(terms) <= 3 or not sources:
         return list(terms)
     titles = [str(source.get("title") or "") for source in sources]
+    chosen = _cooccurring_pair(terms, titles)
+    if chosen:
+        return chosen
+    web = [
+        source for source in sources
+        if str(source.get("venue") or "").lower() != "arxiv"
+    ]
+    blobs = [
+        f"{source.get('title') or ''} {source.get('excerpt') or source.get('summary') or ''}"
+        for source in (web or sources)
+    ]
+    chosen = _cooccurring_pair(terms, blobs)
+    if chosen:
+        return chosen
     counts = {
         term: sum(1 for title in titles if _query_overlap(title, [term]) >= 1)
         for term in terms
     }
     shared = [term for term in terms if counts[term] >= 2]
     if len(shared) >= 2:
-        # Two words the titles share most often. A third modifier such as
-        # "benefits" sits in the question and in some titles, and requiring
-        # it rejected a title whose heading is the subject itself.
         ranked = sorted(shared, key=lambda term: (-counts[term], terms.index(term)))
-        chosen = set(ranked[:2])
-        return [term for term in terms if term in chosen]
+        chosen_set = set(ranked[:2])
+        return [term for term in terms if term in chosen_set]
     if len(shared) == 1:
         return shared
     best: list[str] = []
@@ -1783,6 +1809,27 @@ def _focus_terms(terms: list[str], sources: list[dict] | None) -> list[str]:
     if len(best) >= 2:
         return best
     return list(terms)
+
+
+def _cooccurring_pair(terms: list[str], blobs: list[str]) -> list[str] | None:
+    """Two question words that show up in the same text, more than once."""
+    counts: dict[tuple[str, str], int] = {}
+    for blob in blobs:
+        present = [term for term in terms if _query_overlap(blob, [term]) >= 1]
+        for index, left in enumerate(present):
+            for right in present[index + 1:]:
+                key = (left, right) if terms.index(left) < terms.index(right) else (right, left)
+                counts[key] = counts.get(key, 0) + 1
+    ranked = [pair for pair, count in counts.items() if count >= 2]
+    if not ranked:
+        return None
+    ranked.sort(key=lambda pair: (
+        -counts[pair],
+        -(len(pair[0]) + len(pair[1])),
+        terms.index(pair[0]),
+    ))
+    chosen = set(ranked[0])
+    return [term for term in terms if term in chosen]
 
 
 def _source_score(source: dict, terms: list[str]) -> int:
@@ -1860,9 +1907,35 @@ def _query_overlap(text: str, terms: list[str]) -> int:
     return sum(1 for term in terms if _term_in(lowered, term))
 
 
+# An irregular past is the same word. "slept" does not share a long prefix
+# with "sleep", and a short prefix would also match an unrelated word
+# ("blood" and "bloom"). This is the closed list, not a topic.
+_IRREGULAR = {
+    "slept": ("sleep", "sleeps", "sleeping"),
+    "sleep": ("slept",),
+    "bought": ("buy", "buys", "buying"),
+    "felt": ("feel", "feels", "feeling"),
+    "kept": ("keep", "keeps", "keeping"),
+    "meant": ("mean", "means", "meaning"),
+    "taught": ("teach", "teaches", "teaching"),
+    "thought": ("think", "thinks", "thinking"),
+    "wrote": ("write", "writes", "writing"),
+    "spoke": ("speak", "speaks", "speaking"),
+    "broke": ("break", "breaks", "breaking"),
+    "chose": ("choose", "chooses", "choosing"),
+    "drove": ("drive", "drives", "driving"),
+    "stood": ("stand", "stands", "standing"),
+    "woke": ("wake", "wakes", "waking"),
+    "wore": ("wear", "wears", "wearing"),
+}
+
+
 def _term_in(text: str, term: str) -> bool:
     if re.search(rf"\b{re.escape(term)}\b", text):
         return True
+    for form in _IRREGULAR.get(term, ()):
+        if re.search(rf"\b{re.escape(form)}\b", text):
+            return True
     # "roads" meets "road", "compasses" meets "compass". The plural is the
     # same word. This is not the eight-letter stem that turned
     # "revolutionary" into "revolution".

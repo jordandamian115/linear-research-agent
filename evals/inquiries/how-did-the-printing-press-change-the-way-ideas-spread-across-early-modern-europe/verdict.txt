@@ -1,0 +1,7 @@
+inquiry: how did the printing press change the way ideas spread across early modern Europe
+verdict: worked
+stage: none
+words: 1343
+graphic_steps: 6
+opening: The printing press was invented by the German goldsmith Johannes Gutenberg around 1440, and its subsequent global spread revolutionized literary production and communication during the early modern period.
+failure: none

@@ -1,0 +1,7 @@
+inquiry: how does a pair of eyeglasses correct blurry vision for a nearsighted person
+verdict: worked
+stage: none
+words: 1036
+graphic_steps: 6
+opening: With the subject named, the records say how it works.
+failure: none

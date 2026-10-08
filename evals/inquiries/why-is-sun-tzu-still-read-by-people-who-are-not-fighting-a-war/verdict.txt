@@ -1,0 +1,7 @@
+inquiry: why is Sun Tzu still read by people who are not fighting a war
+verdict: worked
+stage: none
+words: 1296
+graphic_steps: 6
+opening: Sun Tzu is certainly not unique, Homer compares conflict to flowing water as well.
+failure: none

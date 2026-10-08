@@ -1,0 +1,7 @@
+inquiry: how did Ada Lovelace describe the analytical engine and what could it do
+verdict: worked
+stage: none
+words: 981
+graphic_steps: 6
+opening: Ada Lovelace discovered that a computer could follow a sequence of instructions—that is, a program.
+failure: none

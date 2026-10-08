@@ -1,0 +1,7 @@
+inquiry: what did Marie Curie actually discover and why did that work matter to medicine
+verdict: worked
+stage: none
+words: 997
+graphic_steps: 5
+opening: Marie Curie is still the only individual to receive the prize in two different science categories.
+failure: none

@@ -1,0 +1,7 @@
+inquiry: how does a pin tumbler lock keep a door shut until the right key is used
+verdict: worked
+stage: none
+words: 912
+graphic_steps: 6
+opening: The pin tumbler is commonly used in cylinder locks.
+failure: none

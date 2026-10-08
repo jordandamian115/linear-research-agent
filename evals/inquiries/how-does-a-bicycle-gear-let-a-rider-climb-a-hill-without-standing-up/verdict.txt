@@ -1,0 +1,7 @@
+inquiry: how does a bicycle gear let a rider climb a hill without standing up
+verdict: worked
+stage: none
+words: 893
+graphic_steps: 6
+opening: Remember that your front chaining (controlled by your left hand) is going to give you a bigger jump in gearing, so use the left hand to shift to the small chaining in the front when you reach your hill so that you are not trying to mash uphill in too-hard gears.
+failure: none

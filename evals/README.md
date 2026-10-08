@@ -53,4 +53,47 @@ No RAG document was removed. The shelf text does not enter the claims. In the pa
 | diffusion | worked | 917 | |
 | entropy | worked | 593 | |
 
-Rerun with `PYTHONPATH=/workspace python3 evals/run.py` from the repo root. Pass inquiry strings to rerun a subset.
+Rerun with `PYTHONPATH=/workspace python3 evals/run.py` from the repo root. Pass inquiry strings to rerun a subset. The sentence-length set is `PYTHONPATH=/workspace python3 evals/run.py --long`.
+
+## Sentence-length questions
+
+Each question is 5 to 30 words. The first one is the inquiry Jordan ran. The others cover health, history, how things work, people, and ordinary objects. Word counts are the question itself, then the final paper from the abstract through the notes.
+
+### What went wrong on the B12 question
+
+The search worked. Tavily returned HTTP 200 and five pages on vitamin B12 (Healthline, MedPark, a review of natural and synthetic forms, GoodRx, and a clinic page). arXiv’s keyword fallback used the first content words, including “tell”, and returned “Back to the Moon” because that abstract says “much to tell us about”.
+
+The writer then required every content word of the sentence in the title, and “tell” was one of those words. No health title contains “tell”, “consistent”, and “usage” together, so every page was set aside, including the five that are about vitamin B12. The paper was 328 words and did not teach a claim. This is the same class of bug as the “revolutionary” stem filter and the early stop: the subject match was too strict, and it was not a vitamin special case.
+
+The bad passage, from the abstract and again from “What the records support”:
+
+> This note records the search for tell me about the medicinal benefits of consistent vitamin B12 usage. The search returned records, but none of them is a page about this subject. Nothing was invented to fill the gap.
+
+The introduction asked “what tell me about the medicinal benefits of consistent vitamin B12 usage is”. The limits named the five vitamin B12 pages and the moon paper together, as if none of them were the subject.
+
+The shared repair does not add a medical rule. An opening verb such as “tell” is not a search term. A question of four or more content words is matched on the two words its records share (here, vitamin and B12), and those words have to occur together. A question of three content words or fewer is unchanged, so “the revolutionary war” is still both words. Claims stay inside the retrieved sentences, including the GoodRx limit that a supplement is not a proven treatment when levels are not low. The rerun opens on vitamin B12 as a water-soluble vitamin that forms red blood cells, and it sets unrelated records aside.
+
+### Results
+
+18 worked. 0 fell through. Five had fallen through on the first pass of this set (two nights without sleep, the compass bearing, eyeglasses, the cast-iron skillet, and the bicycle gear). They were rerun after the shared repair.
+
+| Inquiry | Question words | Result | Paper words | Failure |
+| --- | --- | --- | --- | --- |
+| tell me about the medicinal benefits of consistent vitamin B12 usage | 11 | worked | 1773 | |
+| how does a daily walk of thirty minutes affect blood pressure in adults | 13 | worked | 1196 | |
+| what happens in the body when someone has not slept for two nights | 13 | worked | 782 | |
+| why do some people get seasonal allergies every spring and others do not | 13 | worked | 1724 | |
+| how do vaccines train the immune system to recognize a virus later | 12 | worked | 1770 | |
+| how did the printing press change the way ideas spread across early modern Europe | 14 | worked | 1343 | |
+| what led ordinary colonists to dump tea into Boston harbor in 1773 | 12 | worked | 986 | |
+| why did the Berlin Wall fall in November 1989 and what changed afterward | 13 | worked | 1307 | |
+| how did Cleopatra keep her throne while Rome was expanding into Egypt | 12 | worked | 1324 | |
+| what did Marie Curie actually discover and why did that work matter to medicine | 14 | worked | 997 | |
+| how did Ada Lovelace describe the analytical engine and what could it do | 13 | worked | 981 | |
+| why is Sun Tzu still read by people who are not fighting a war | 14 | worked | 1296 | |
+| how does a pin tumbler lock keep a door shut until the right key is used | 16 | worked | 912 | |
+| how does a kitchen refrigerator move heat out of the food compartment | 12 | worked | 1198 | |
+| what does a magnetic compass needle do and how do you take a bearing with it | 16 | worked | 1370 | |
+| how does a pair of eyeglasses correct blurry vision for a nearsighted person | 13 | worked | 1036 | |
+| why does a cast iron skillet hold heat longer than a thin steel pan | 14 | worked | 1032 | |
+| how does a bicycle gear let a rider climb a hill without standing up | 14 | worked | 893 | |

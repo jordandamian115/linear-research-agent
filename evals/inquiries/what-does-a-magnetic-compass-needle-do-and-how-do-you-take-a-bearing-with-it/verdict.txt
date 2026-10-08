@@ -1,0 +1,7 @@
+inquiry: what does a magnetic compass needle do and how do you take a bearing with it
+verdict: worked
+stage: none
+words: 1370
+graphic_steps: 6
+opening: A magnetic card compass is usually equipped with an optical, lensatic, or prismatic sight, which allows the user to read the bearing or azimuth off the compass card while simultaneously aligning the compass with the objective (see photo).
+failure: none

@@ -1,0 +1,7 @@
+inquiry: what happens in the body when someone has not slept for two nights
+verdict: worked
+stage: none
+words: 782
+graphic_steps: 6
+opening: With the subject named, the records say how it works.
+failure: none
